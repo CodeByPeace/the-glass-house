@@ -197,6 +197,7 @@ function renderVault(title, body) {
     body.innerHTML = `
         <div style="text-align:center;">
             <p style="font-size:0.7rem; color:#444;">${vault.prompt || 'RECOVERY KEY REQUIRED'}</p>
+            <p style="font-size:0.55rem; color:#2a2a2a; margin-top:6px; font-family:'JetBrains Mono';">LAST_ACCESSED: 2 MIN AGO — UNKNOWN_DEVICE</p>
             <input id="vault-input" type="tel" maxlength="${(vault.code || '').length || 4}"
                    style="background:transparent; border:none; border-bottom:1px solid #222; color:var(--accent); font-size:2.5rem; text-align:center; width:100%; outline:none; margin-top:30px;"
                    oninput="checkVaultCode(this.value)">

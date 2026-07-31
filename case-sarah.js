@@ -7,6 +7,7 @@
 
 window.CASE = {
     apps: ['chats', 'gallery', 'map', 'memos', 'vault'],
+    freshApp: 'memos',
 
     chats: [
         { u: 'SARAH',   t: "I'm at the dock. Leo doesn't know." },

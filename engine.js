@@ -11,7 +11,8 @@ const engineState = {
     appsOpenedCount: 0,
     lastDiscoveryTime: null,
     stuckCheckStarted: false,
-    hintFired: false
+    hintFired: false,
+    detailsOpened: 0
 };
 
 function startSystem() {
@@ -202,10 +203,19 @@ function renderVault(title, body) {
                    style="background:transparent; border:none; border-bottom:1px solid #222; color:var(--accent); font-size:2.5rem; text-align:center; width:100%; outline:none; margin-top:30px;"
                    oninput="checkVaultCode(this.value)">
             <div id="final-reveal" class="hidden" style="margin-top:30px; text-align:left; font-size:0.9rem; color:#888; line-height:1.6;">
-                <p><strong>CASE SUMMARY:</strong> ${vault.revealText || ''}</p>
+                <p><strong>CASE SUMMARY:</strong> ${getEngagementAwareReveal(vault)}</p>
             </div>
         </div>
     `;
+}
+
+function getEngagementAwareReveal(vault) {
+    const galleryTotal = (window.CASE.gallery || []).length;
+    const detailedEnough = engineState.detailsOpened >= Math.ceil(galleryTotal * 0.6);
+    if (detailedEnough || !vault.shallowRevealText) {
+        return vault.revealText || '';
+    }
+    return vault.shallowRevealText;
 }
 
 function checkVaultCode(value) {
@@ -266,13 +276,23 @@ function triggerGlitch() {
     const overlay = document.getElementById('window-overlay');
     const target = overlay && !overlay.classList.contains('hidden') ? overlay : desktop;
     target.classList.add('glitch-active');
+    duckAmbient();
     setTimeout(() => target.classList.remove('glitch-active'), 500);
+}
+
+function duckAmbient() {
+    const music = document.getElementById('bg-music');
+    if (!music) return;
+    const original = music.volume || 1;
+    music.volume = 0.15;
+    setTimeout(() => { music.volume = original; }, 2500);
 }
 
 function fireHint() {
     const n = document.getElementById('notif');
     const ping = document.getElementById('sfx-ping');
     if (ping) ping.play().catch(() => {});
+    duckAmbient();
     document.getElementById('notif-msg').innerText = (window.CASE.hintText || 'Look closer. Something on this device doesn\'t add up yet.');
     n.classList.remove('hidden');
     setTimeout(() => n.classList.add('hidden'), 7000);

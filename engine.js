@@ -136,6 +136,8 @@ function revealDetail(index) {
     const items = window.CASE.gallery || [];
     const item = items[index];
     if (!item) return;
+    engineState.lastDiscoveryTime = Date.now();
+    engineState.detailsOpened++;
     const overlay = document.getElementById('window-overlay');
     const body = document.getElementById('app-body');
     const title = document.getElementById('window-title');

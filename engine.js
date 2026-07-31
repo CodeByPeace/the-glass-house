@@ -10,7 +10,8 @@ const engineState = {
     liveStoryFired: false,
     appsOpenedCount: 0,
     lastDiscoveryTime: null,
-    stuckCheckStarted: false
+    stuckCheckStarted: false,
+    hintFired: false
 };
 
 function startSystem() {
@@ -53,7 +54,8 @@ function renderIconGrid() {
     const apps = window.CASE.apps || [];
     grid.innerHTML = apps.map(appId => {
         const meta = APP_META[appId] || { icon: '📁', label: appId };
-        return `<div class="icon" onclick="openApp('${appId}')">
+        return `<div class="icon" onclick="openApp('${appId}')" style="position:relative;">
+                    ${appId === (window.CASE.freshApp || '') ? '<span style="position:absolute; top:-4px; right:8px; width:8px; height:8px; background:var(--accent); border-radius:50%; box-shadow:0 0 8px var(--accent);"></span>' : ''}
                     <div class="app-icon">${meta.icon}</div>
                     <span>${meta.label}</span>
                 </div>`;
@@ -251,6 +253,10 @@ function startStuckWatcher() {
             triggerGlitch();
             engineState.lastDiscoveryTime = Date.now(); // don't spam, re-arm for next 90s
         }
+        if (idleMs > 180000 && !engineState.hintFired) {
+            engineState.hintFired = true;
+            fireHint();
+        }
     }, 5000);
 }
 
@@ -260,4 +266,13 @@ function triggerGlitch() {
     const target = overlay && !overlay.classList.contains('hidden') ? overlay : desktop;
     target.classList.add('glitch-active');
     setTimeout(() => target.classList.remove('glitch-active'), 500);
+}
+
+function fireHint() {
+    const n = document.getElementById('notif');
+    const ping = document.getElementById('sfx-ping');
+    if (ping) ping.play().catch(() => {});
+    document.getElementById('notif-msg').innerText = (window.CASE.hintText || 'Look closer. Something on this device doesn\'t add up yet.');
+    n.classList.remove('hidden');
+    setTimeout(() => n.classList.add('hidden'), 7000);
 }

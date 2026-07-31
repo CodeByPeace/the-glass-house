@@ -49,7 +49,7 @@ window.CASE = {
     vault: {
         prompt: 'RECOVERY KEY REQUIRED (4-DIGIT DOCK TIME)',
         code: '0214',
-        revealText: "Leo didn't find Sarah. Sarah found Leo. The person in the mirror wasn't Leo — it was the investigator Sarah hired to fake her own death. Leo is at the dock because he's trying to stop her from leaving with the money. But look at the GPS: Sarah's phone is at the dock, but her car just crossed the bridge. She left the phone behind to lead him there. Ashley was never part of it. Sarah is gone."
+        revealText: "Leo didn't find Sarah. Sarah found Leo. The person in the mirror wasn't Leo — it was the investigator Sarah hired to fake her own death. Leo is at the dock because he's trying to stop her from leaving with the money. But look at the GPS: Sarah's phone is at the dock, but her car just crossed the bridge. She left the phone behind to lead him there. Ashley was never part of it. But someone paid for that plane ticket — and it wasn't Sarah's card."
     },
 
     liveIntrusion: {

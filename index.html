@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GHOST_DRIVE_v1.0</title>
+    <title>GHOST_DRIVE</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600&family=JetBrains+Mono:wght@300&display=swap" rel="stylesheet">
 </head>
@@ -15,25 +15,19 @@
     <div id="boot-screen" onclick="startSystem()">
         <div class="boot-content">
             <h1 class="glitch-text">GHOST_DRIVE</h1>
-            <p>> ATTEMPTING_REMOTE_MOUNT... [OK]</p>
-            <p>> SOURCE: CLOUD_BACKUP_JULY30</p>
-            <p class="blink">> [ TOUCH TO INITIALIZE ]</p>
+            <p>&gt; ATTEMPTING_REMOTE_MOUNT... [OK]</p>
+            <p>&gt; SOURCE: CLOUD_BACKUP</p>
+            <p class="blink">&gt; [ TOUCH TO INITIALIZE ]</p>
         </div>
     </div>
 
     <div id="desktop" class="hidden">
         <div class="taskbar">
             <div class="sys-id">NODE_730 // RECOVERY_ACTIVE</div>
-            <div class="clock" id="clock">02:14 AM</div>
+            <div class="clock" id="clock">--:--</div>
         </div>
 
-        <div class="icon-grid">
-            <div class="icon" onclick="openApp('gallery')">🖼️<span>Gallery</span></div>
-            <div class="icon" onclick="openApp('messages')">💬<span>Chats</span></div>
-            <div class="icon" onclick="openApp('map')">📍<span>Map</span></div>
-            <div class="icon" onclick="openApp('memos')">🎙️<span>Memos</span></div>
-            <div class="icon" onclick="openApp('vault')">🔒<span>Vault</span></div>
-        </div>
+        <div class="icon-grid" id="icon-grid"></div>
 
         <div id="window-overlay" class="window-overlay hidden">
             <div class="window-content">
@@ -51,6 +45,7 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="case-sarah.js"></script>
+    <script src="engine.js"></script>
 </body>
 </html>

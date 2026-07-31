@@ -8,7 +8,9 @@
 const engineState = {
     booted: false,
     liveStoryFired: false,
-    appsOpenedCount: 0
+    appsOpenedCount: 0,
+    lastDiscoveryTime: null,
+    stuckCheckStarted: false
 };
 
 function startSystem() {
@@ -237,4 +239,25 @@ function fireLiveIntrusion(cfg) {
     document.getElementById('notif-msg').innerText = cfg.message;
     n.classList.remove('hidden');
     setTimeout(() => n.classList.add('hidden'), cfg.displaySeconds ? cfg.displaySeconds * 1000 : 7000);
+}
+
+/* -------------------- STUCK WATCHER / GLITCH CUE -------------------- */
+
+function startStuckWatcher() {
+    setInterval(() => {
+        if (!engineState.lastDiscoveryTime) return;
+        const idleMs = Date.now() - engineState.lastDiscoveryTime;
+        if (idleMs > 90000) {
+            triggerGlitch();
+            engineState.lastDiscoveryTime = Date.now(); // don't spam, re-arm for next 90s
+        }
+    }, 5000);
+}
+
+function triggerGlitch() {
+    const desktop = document.getElementById('desktop');
+    const overlay = document.getElementById('window-overlay');
+    const target = overlay && !overlay.classList.contains('hidden') ? overlay : desktop;
+    target.classList.add('glitch-active');
+    setTimeout(() => target.classList.remove('glitch-active'), 500);
 }

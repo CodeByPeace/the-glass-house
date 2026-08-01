@@ -131,14 +131,14 @@ window.CASE = {
     ],
 
     memos: [
-        { filename: 'Front Door - 0:05', audioSrc: window.ASSETS.ashley_door, idle: '[Tap to play]', reveal: "ASHLEY: did you leave the back door unlocked? just checking" },
-        { filename: 'Driveway / Car - 0:06', audioSrc: window.ASSETS.ashley_car, idle: '[Tap to play]', reveal: "ASHLEY: i saw that car outside again. thought it was you for a second. text me when you're back." },
-        { filename: 'Kitchen Counter - 0:05', audioSrc: window.ASSETS.ashley_counter, idle: '[Tap to play]', reveal: "ASHLEY: left your stuff by the counter. call me later." },
-        { filename: 'Guest Room - 0:05', audioSrc: window.ASSETS.ashley_missing, idle: '[Tap to play]', reveal: "ASHLEY: hey... you haven't picked up all day. is everything okay?" },
-        { filename: 'Main Road - 0:03', audioSrc: window.ASSETS.ashley_heading_over, idle: '[Tap to play]', reveal: "ASHLEY: i'm heading over now. don't go anywhere." },
-        { filename: 'The Dock - 0:13', audioSrc: window.ASSETS.sarah_dock, idle: '[Tap to play]', reveal: "SARAH: (whispering) hey... don't call me back. just... check the folder. the timestamp on the dock photo, that's the key. i gotta go." },
-        { filename: 'Backroad - 0:10', audioSrc: window.ASSETS.sarah_backroad, idle: '[Tap to play]', reveal: "SARAH: he thinks i'm still in the house. i'm taking the back road... if i don't message you by two, just delete the backup." },
-        { filename: 'Unknown Location - 0:10', audioSrc: window.ASSETS.sarah_forensic, idle: '[Tap to play]', reveal: "SARAH: if you're listening to this... i didn't make it to the boat. look at the file details, not the picture." }
+        { filename: 'Front Door - 0:05', audioSrc: 'assets/ashley_01_door.opus', idle: '[Tap to play]', reveal: "ASHLEY: did you leave the back door unlocked? just checking" },
+        { filename: 'Driveway / Car - 0:06', audioSrc: 'assets/ashley_02_car.opus', idle: '[Tap to play]', reveal: "ASHLEY: i saw that car outside again. thought it was you for a second. text me when you're back." },
+        { filename: 'Kitchen Counter - 0:05', audioSrc: 'assets/ashley_03_counter.opus', idle: '[Tap to play]', reveal: "ASHLEY: left your stuff by the counter. call me later." },
+        { filename: 'Guest Room - 0:05', audioSrc: 'assets/ashley_04_missing.opus', idle: '[Tap to play]', reveal: "ASHLEY: hey... you haven't picked up all day. is everything okay?" },
+        { filename: 'Main Road - 0:03', audioSrc: 'assets/ashley_05_heading_over.opus', idle: '[Tap to play]', reveal: "ASHLEY: i'm heading over now. don't go anywhere." },
+        { filename: 'The Dock - 0:13', audioSrc: 'assets/sarah_01_dock.opus', idle: '[Tap to play]', reveal: "SARAH: (whispering) hey... don't call me back. just... check the folder. the timestamp on the dock photo, that's the key. i gotta go." },
+        { filename: 'Backroad - 0:10', audioSrc: 'assets/sarah_02_backroad.opus', idle: '[Tap to play]', reveal: "SARAH: he thinks i'm still in the house. i'm taking the back road... if i don't message you by two, just delete the backup." },
+        { filename: 'Unknown Location - 0:10', audioSrc: 'assets/sarah_03_forensic.opus', idle: '[Tap to play]', reveal: "SARAH: if you're listening to this... i didn't make it to the boat. look at the file details, not the picture." }
     ],
 
     notes: [

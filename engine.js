@@ -34,7 +34,7 @@ function renderIcons() {
         chats: { i: '💬', l: 'Messages' },
         gallery: { i: '📷', l: 'Photos' },
         map: { i: '🗺️', l: 'Maps' },
-        memos: { i: '🎙️', l: 'Voice' },
+        memos: { i: '🎙️', l: 'Voice Memos' },
         vault: { i: '🔒', l: 'Note' },
         notes: { i: '📝', l: 'Notes' }
     };
@@ -170,6 +170,7 @@ function openMemo(i) {
         <div style="height:3px; background:#222; width:100%; position:relative; margin-bottom:20px"><div id="m-progress" style="height:100%; width:0%; background:#00ffcc;"></div>
         <input type="range" min="0" max="100" value="0" style="width:100%; position:absolute; left:0; top:0; opacity:0;" oninput="scrub(this.value)"></div>
         <p id="m-sub" style="color:#444; font-style:italic;">${m.idle}</p>
+        <button class="back-btn" onclick="openApp('memos')" style="margin-top:30px; width:80%; border:1px solid #333; padding:12px; background:#111; color:white; border-radius:10px;">Done</button>
     </div>`;
 }
 function scrub(v) {

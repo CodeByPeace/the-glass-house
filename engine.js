@@ -136,14 +136,20 @@ function renderMap(body) {
 function renderMemos(body) {
     const m = window.CASE.memos[0];
     body.innerHTML = `<div style="text-align:center; padding-top:40px;">
+        <audio id="memo-audio" src="${m.audioSrc}" preload="metadata"></audio>
         <div style="height:3px; background:#222; width:100%; position:relative; margin-bottom:20px"><div id="m-progress" style="height:100%; width:0%; background:#00ffcc;"></div>
-        <input type="range" style="width:100%; position:absolute; left:0; top:0; opacity:0;" oninput="scrub(this.value)"></div>
+        <input type="range" min="0" max="100" value="0" style="width:100%; position:absolute; left:0; top:0; opacity:0;" oninput="scrub(this.value)"></div>
         <p id="m-sub" style="color:#444; font-style:italic;">${m.idle}</p>
     </div>`;
 }
 function scrub(v) {
     const m = window.CASE.memos[0];
+    const audio = document.getElementById('memo-audio');
     document.getElementById('m-progress').style.width = v + '%';
+    if (audio.duration) {
+        audio.currentTime = (v / 100) * audio.duration;
+        audio.play().catch(()=>{});
+    }
     document.getElementById('m-sub').innerText = (v > 70) ? m.reveal : m.idle;
     document.getElementById('m-sub').style.color = (v > 70) ? '#00ffcc' : '#444';
 }

@@ -36,7 +36,7 @@ window.CASE = {
         { t: '21:00', l: 'Main House', d: 'Stationary for 14m' },
         { t: '22:14', l: 'The Dock', d: 'Signal Lost. Last speed: 12mph' }
     ],
-    memos: [{ filename: 'Voice 001', idle: '[Static]', reveal: 'SARAH: (whispering) i know u saw the alert leo. im not going back.' }],
+    memos: [{ filename: 'Voice 001', audioSrc: window.ASSETS.sarah_forensic, idle: '[Static]', reveal: 'SARAH: (whispering) i know u saw the alert leo. im not going back.' }],
     vault: {
         code: '2214',
         partial: "You found the ticket, but it's too late. She's gone.",

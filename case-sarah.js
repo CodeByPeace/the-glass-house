@@ -13,14 +13,19 @@ window.CASE = {
     ],
     gallery: [
         {
-            img: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205',
+            img: window.ASSETS.mirror_photo,
             exif: { date: 'Jun 14, 2024 - 9:00 PM', loc: 'Lake House Hallway' },
-            desc: "just a fit check... wait, is that his jacket in the background?"
+            desc: "mirror selfie. reflection shows a jacket on the coat hook behind her."
         },
         {
-            img: 'https://images.unsplash.com/photo-1534353473418-4cfa6c56fd38',
-            exif: { date: 'Jun 14, 2024 - 10:14 PM', loc: 'Lake House Kitchen' },
-            desc: "screenshot of the ticket. card used: *9902. ashley was right."
+            img: window.ASSETS.dock_photo,
+            exif: { date: 'Jun 14, 2024 - 9:52 PM', loc: 'The Dock' },
+            desc: "taken from the water. timestamp is 22 minutes before her last text."
+        },
+        {
+            img: window.ASSETS.ticket_photo,
+            exif: { date: 'Jun 14, 2024 - 10:14 PM', loc: 'Screenshot' },
+            desc: "plane ticket confirmation. departure time is legible, destination isnt."
         }
     ],
     map: [

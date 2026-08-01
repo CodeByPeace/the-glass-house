@@ -4,7 +4,8 @@ const engine = {
     startTime: Date.now(),
     discovered: new Set(),
     isBooted: false,
-    currentApp: null
+    currentApp: null,
+    hintFired: false
 };
 localStorage.setItem('gd_sessions', engine.sessionCount + 1);
 
@@ -99,11 +100,29 @@ function viewPhoto(i) {
 }
 
 function goHome() { document.getElementById('app-window').classList.add('hidden'); }
+function showNotification(title, body) {
+    const center = document.getElementById('notification-center');
+    const el = document.createElement('div');
+    el.className = 'notif';
+    el.innerHTML = `<div class="notif-h">${title}</div><div class="notif-b">${body}</div>`;
+    center.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('active'));
+    setTimeout(() => {
+        el.classList.remove('active');
+        setTimeout(() => el.remove(), 500);
+    }, 6000);
+}
 function startStuckCheck() {
     setInterval(() => {
-        const idle = Date.now() - (engine.lastAction || Date.now());
-        if (idle > 60000) document.body.classList.add('glitch-active');
-        setTimeout(()=>document.body.classList.remove('glitch-active'), 300);
+        const idle = Date.now() - (engine.lastAction || engine.startTime);
+        if (idle > 90000) {
+            document.body.classList.add('glitch-active');
+            setTimeout(()=>document.body.classList.remove('glitch-active'), 300);
+        }
+        if (idle > 180000 && !engine.hintFired) {
+            engine.hintFired = true;
+            showNotification('iCloud', window.CASE.hintText || "Something on this phone doesn't add up yet.");
+        }
     }, 10000);
 }
 

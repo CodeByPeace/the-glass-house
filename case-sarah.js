@@ -54,6 +54,7 @@ window.CASE = {
             body: "lake house wifi: SunsetDock22\n\nwhy do i always forget this"
         }
     ],
+    hintText: 'check the timestamp on the dock photo against her last text',
     vault: {
         code: '2214',
         partial: "You found the ticket, but it's too late. She's gone.",

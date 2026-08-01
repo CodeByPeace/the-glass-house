@@ -34,7 +34,7 @@ function renderIcons() {
         gallery: { i: 'Photos', l: 'Photos' }, // Real name
         map: { i: '🗺️', l: 'Maps' },
         memos: { i: '🎙️', l: 'Voice' },
-        vault: { i: '🔒', l: 'Files' },
+        vault: { i: '🔒', l: 'Note' },
         notes: { i: '📝', l: 'Notes' }
     };
     grid.innerHTML = window.CASE.apps.map(id => `
@@ -54,7 +54,7 @@ function openApp(id) {
     const title = document.getElementById('window-title');
     win.classList.remove('hidden');
 
-    const appTitles = { chats: 'Messages', gallery: 'Photos', map: 'Maps', memos: 'Voice Memos', notes: 'Notes', vault: 'Secure Folder' };
+    const appTitles = { chats: 'Messages', gallery: 'Photos', map: 'Maps', memos: 'Voice Memos', notes: 'Notes', vault: 'Note' };
     title.innerText = appTitles[id] || 'App';
 
     if (id === 'chats') renderChats(body);
@@ -110,9 +110,8 @@ function startStuckCheck() {
 function renderVault(body) {
     body.innerHTML = `
         <div class="vault-wrap">
-            <p style="font-size:13px; color:#666;">Enter Passcode</p>
+            <p style="font-size:13px; color:#666;">Enter Password</p>
             <input type="tel" id="vault-input" maxlength="4" style="background:none; border:none; border-bottom:2px solid #333; color:white; font-size:32px; text-align:center; width:120px; outline:none; letter-spacing:8px;" oninput="checkVault(this)">
-            <p style="font-size:11px; color:#222; margin-top:40px;">Hint: Check Maps</p>
         </div>
     `;
 }

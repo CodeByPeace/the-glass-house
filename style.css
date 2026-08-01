@@ -286,3 +286,43 @@ html, body {
 }
 @keyframes tear-hard { 0% { transform: translate(0); } 33% { transform: translate(-5px,1px) skewX(1deg); } 66% { transform: translate(5px,-1px) skewX(-1deg); } 100% { transform: translate(0); } }
 @keyframes red-pulse { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
+
+
+/* WALLPAPER FIX — visible art layer, not pure black */
+.wallpaper {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+        radial-gradient(circle at 22% 20%, rgba(255,45,120,0.22), transparent 42%),
+        radial-gradient(circle at 78% 78%, rgba(0,229,255,0.16), transparent 48%),
+        radial-gradient(circle at 50% 50%, rgba(120,60,200,0.08), transparent 60%),
+        linear-gradient(160deg, #14141c 0%, #0a0a0e 55%, #050506 100%);
+}
+.screen, #app-window { position: relative; z-index: 1; }
+#boot-screen { position: relative; z-index: 1; background: transparent; }
+
+/* ENDING TRANSITION — the moment between correct code and artifact */
+.ending-transition {
+    height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 20px;
+}
+.ending-transition::before {
+    content: '';
+    width: 60px; height: 60px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,229,255,0.5), transparent 70%);
+    animation: ending-pulse 0.6s ease-in-out infinite;
+}
+.ending-transition::after {
+    content: 'processing...';
+    font-family: monospace; font-size: 11px; letter-spacing: 3px; color: #66666e;
+    animation: ending-text-flicker 0.15s infinite;
+}
+@keyframes ending-pulse {
+    0%, 100% { transform: scale(0.7); opacity: 0.5; }
+    50% { transform: scale(1.3); opacity: 1; }
+}
+@keyframes ending-text-flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+.ending-fx-white-glitch .ending-transition::before { background: radial-gradient(circle, rgba(255,255,255,0.8), transparent 70%); }
+.ending-fx-red-tear .ending-transition::before { background: radial-gradient(circle, rgba(255,59,48,0.6), transparent 70%); }

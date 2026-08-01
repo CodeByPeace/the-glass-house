@@ -427,12 +427,24 @@ function engagementMet() {
 function renderVault(body) {
     body.innerHTML = `
         <div class="vault-wrap">
-            <p style="font-size:13px; color:#666;">Enter Passcode</p>
+            <p id="vault-label" style="font-size:13px; color:#666;">Enter Passcode</p>
             <input type="tel" id="vault-input" maxlength="4" oninput="checkVault(this)">
             <p id="vault-gate-msg" style="font-size:11px; color:#444; margin-top:20px;">${engagementMet() ? '' : window.CASE.vault.gateMsg}</p>
             <button class="give-up-btn" onclick="triggerEnding('walkaway')">walk away</button>
         </div>
     `;
+}
+
+function setVaultCooldownLabel(active) {
+    const label = document.getElementById('vault-label');
+    if (!label) return;
+    if (active) {
+        label.innerText = 'Locked — try again shortly';
+        label.style.color = '#ff3b30';
+    } else {
+        label.innerText = 'Enter Passcode';
+        label.style.color = '#666';
+    }
 }
 
 function checkVault(el) {
@@ -451,9 +463,10 @@ function checkVault(el) {
         el.classList.add('shake');
         document.body.classList.add('flash-red');
         engine.vaultLocked = true;
+        setVaultCooldownLabel(true);
         setTimeout(() => el.classList.remove('shake'), 400);
         setTimeout(() => document.body.classList.remove('flash-red'), 200);
-        setTimeout(() => { engine.vaultLocked = false; }, 10000);
+        setTimeout(() => { engine.vaultLocked = false; setVaultCooldownLabel(false); }, 10000);
     }
 }
 

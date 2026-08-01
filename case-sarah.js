@@ -36,7 +36,16 @@ window.CASE = {
         { t: '21:00', l: 'Main House', d: 'Stationary for 14m' },
         { t: '22:14', l: 'The Dock', d: 'Signal Lost. Last speed: 12mph' }
     ],
-    memos: [{ filename: 'Voice 001', audioSrc: window.ASSETS.sarah_forensic, idle: '[Static]', reveal: 'SARAH: (whispering) i know u saw the alert leo. im not going back.' }],
+    memos: [
+        { filename: 'Voice 001', audioSrc: window.ASSETS.sarah_dock, idle: '[Tap to play]', reveal: "SARAH: (whispering) hey... don't call me back. just... check the folder. the timestamp on the dock photo, that's the key. i gotta go." },
+        { filename: 'Voice 002', audioSrc: window.ASSETS.sarah_backroad, idle: '[Tap to play]', reveal: "SARAH: he thinks i'm still in the house. i'm taking the back road... if i don't message you by two, just delete the backup." },
+        { filename: 'Voice 003', audioSrc: window.ASSETS.sarah_forensic, idle: '[Tap to play]', reveal: "SARAH: if you're listening to this... i didn't make it to the boat. look at the file details, not the picture." },
+        { filename: 'Voice 004', audioSrc: window.ASSETS.ashley_door, idle: '[Tap to play]', reveal: "ASHLEY: did you leave the back door unlocked? just checking" },
+        { filename: 'Voice 005', audioSrc: window.ASSETS.ashley_car, idle: '[Tap to play]', reveal: "ASHLEY: i saw that car outside again. thought it was you for a second. text me when you're back." },
+        { filename: 'Voice 006', audioSrc: window.ASSETS.ashley_counter, idle: '[Tap to play]', reveal: "ASHLEY: left your stuff by the counter. call me later." },
+        { filename: 'Voice 007', audioSrc: window.ASSETS.ashley_missing, idle: '[Tap to play]', reveal: "ASHLEY: hey... you haven't picked up all day. is everything okay?" },
+        { filename: 'Voice 008', audioSrc: window.ASSETS.ashley_heading_over, idle: '[Tap to play]', reveal: "ASHLEY: i'm heading over now. don't go anywhere." }
+    ],
     notes: [
         {
             title: "grocery / door stuff",

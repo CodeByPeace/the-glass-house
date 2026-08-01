@@ -32,7 +32,7 @@ function renderIcons() {
     const grid = document.getElementById('icon-grid');
     const meta = {
         chats: { i: '💬', l: 'Messages' },
-        gallery: { i: 'Photos', l: 'Photos' }, // Real name
+        gallery: { i: '📷', l: 'Photos' },
         map: { i: '🗺️', l: 'Maps' },
         memos: { i: '🎙️', l: 'Voice' },
         vault: { i: '🔒', l: 'Note' },
@@ -154,7 +154,17 @@ function renderMap(body) {
     </div>`).join('');
 }
 function renderMemos(body) {
-    const m = window.CASE.memos[0];
+    body.innerHTML = window.CASE.memos.map((m, i) => `
+        <div style="padding:14px 0; border-bottom:1px solid #111; display:flex; justify-content:space-between; align-items:center;" onclick="openMemo(${i})">
+            <span style="font-size:14px; color:#ccc;">${m.filename}</span>
+            <span style="font-size:11px; color:#555;">›</span>
+        </div>
+    `).join('');
+}
+function openMemo(i) {
+    engine.currentMemo = i;
+    const m = window.CASE.memos[i];
+    const body = document.getElementById('app-body');
     body.innerHTML = `<div style="text-align:center; padding-top:40px;">
         <audio id="memo-audio" src="${m.audioSrc}" preload="metadata"></audio>
         <div style="height:3px; background:#222; width:100%; position:relative; margin-bottom:20px"><div id="m-progress" style="height:100%; width:0%; background:#00ffcc;"></div>
@@ -163,7 +173,7 @@ function renderMemos(body) {
     </div>`;
 }
 function scrub(v) {
-    const m = window.CASE.memos[0];
+    const m = window.CASE.memos[engine.currentMemo];
     const audio = document.getElementById('memo-audio');
     document.getElementById('m-progress').style.width = v + '%';
     if (audio.duration) {

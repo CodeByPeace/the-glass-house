@@ -12,11 +12,12 @@
     <div class="crt-filter"></div>
     <audio id="bg-music" loop preload="auto"><source src="https://assets.mixkit.co/music/preview/mixkit-atmospheric-dream-40.mp3" type="audio/mpeg"></audio>
     <audio id="sfx-ping" preload="auto"><source src="https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-2574.mp3" type="audio/mpeg"></audio>
+    <audio id="sfx-tension" preload="auto"><source src="https://assets.mixkit.co/sfx/preview/mixkit-tense-cinematic-trailer-hit-2301.mp3" type="audio/mpeg"></audio>
 
     <div id="boot-screen" onclick="startSystem()">
+        <div id="lock-banner" class="lock-banner"></div>
         <div class="boot-loader">
-            <div class="apple-logo"></div>
-            <div class="progress-container"><div class="progress-bar"></div></div>
+            <div class="boot-spinner"></div>
             <p id="boot-status">Restoring from iCloud...</p>
             <p class="blink-hint">Tap to Continue</p>
         </div>
@@ -27,7 +28,7 @@
             <div class="carrier">Verizon</div>
             <div class="status-right">
                 <span id="clock">12:00</span>
-                <div class="battery-icon"><div id="battery-level"></div></div>
+                <div class="battery-icon" id="battery-icon"><div id="battery-level"></div></div>
             </div>
         </div>
 
@@ -37,7 +38,7 @@
 
         <div id="app-window" class="screen hidden">
             <header class="app-header">
-                <button class="back-btn" onclick="goHome()">‹ Back</button>
+                <button class="back-btn" onclick="goBack()">‹ Back</button>
                 <h2 id="window-title">App</h2>
                 <div class="header-spacer"></div>
             </header>
@@ -48,5 +49,6 @@
     <script src="assets.js"></script>
     <script src="case-sarah.js"></script>
     <script src="engine.js"></script>
+    <script>window.addEventListener('load', initLockScreen);</script>
 </body>
 </html>

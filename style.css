@@ -1,5 +1,6 @@
 :root {
     --accent: #00ffcc;
+    --ios-blue: #007AFF;
     --bg: #000;
     --surface: #111;
     --text: #eee;
@@ -11,13 +12,19 @@
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
     -webkit-user-drag: none;
+    -webkit-touch-callout: none;
 }
+
+html { overscroll-behavior-y: contain; }
 
 body, html {
     margin: 0; padding: 0; width: 100%; height: 100%;
     background: var(--bg); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color: var(--text); overflow: hidden;
+    overscroll-behavior: contain;
 }
 
 .crt-filter {
@@ -27,12 +34,29 @@ body, html {
     background-size: 100% 3px, 3px 100%; z-index: 9999; pointer-events: none; opacity: 0.4;
 }
 
-/* BOOT */
+/* BOOT / LOCK SCREEN */
 #boot-screen {
-    height: 100%; display: flex; align-items: center; justify-content: center;
-    background: #000; z-index: 10000; cursor: pointer; text-align: center;
+    height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: #000; z-index: 10000; cursor: pointer; text-align: center; position: relative;
 }
-.glitch { font-size: 1.2rem; letter-spacing: 5px; color: var(--accent); font-weight: 200; }
+.lock-banner {
+    position: absolute; top: 14px; left: 10px; right: 10px;
+    background: rgba(20,20,20,0.9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-radius: 15px; padding: 12px 15px; display: none; flex-direction: column; gap: 3px;
+    transform: translateY(-150%); transition: transform 0.5s cubic-bezier(0.1,0.9,0.2,1);
+}
+.lock-banner.active { display: flex; transform: translateY(0); }
+.lock-banner-h { font-size: 10px; font-weight: 800; color: var(--accent); }
+.lock-banner-b { font-size: 13px; color: #ccc; filter: blur(2px); }
+
+.boot-loader { display: flex; flex-direction: column; align-items: center; }
+.boot-spinner {
+    width: 28px; height: 28px; margin-bottom: 20px;
+    border: 3px solid #222; border-top-color: var(--accent); border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+#boot-status { font-size: 0.95rem; letter-spacing: 2px; color: var(--accent); font-weight: 200; }
 .blink-hint { margin-top: 50px; font-size: 0.7rem; color: #333; animation: blink 2s infinite; }
 
 /* OS SHELL */
@@ -41,8 +65,10 @@ body, html {
     align-items: flex-end; font-size: 12px; font-weight: 600; color: var(--text);
     position: absolute; top: 0; width: 100%; z-index: 1000;
 }
+.status-right { display: flex; align-items: center; gap: 6px; }
 .battery-icon { width: 22px; height: 11px; border: 1px solid #666; border-radius: 2px; position: relative; margin-left: 5px; }
-#battery-level { height: 100%; background: var(--accent); width: 80%; }
+#battery-level { height: 100%; background: var(--accent); width: 80%; transition: width 1s linear, background 0.3s; }
+.battery-icon.critical #battery-level { background: var(--danger); animation: blink 1s infinite; }
 
 .screen {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -69,24 +95,89 @@ body, html {
     height: 60px; display: flex; align-items: center; padding: 0 15px;
     border-bottom: 1px solid #111;
 }
-.back-btn { background: none; border: none; color: var(--accent); font-size: 17px; font-weight: 400; cursor: pointer; }
+.back-btn { background: none; border: none; color: var(--ios-blue); font-size: 17px; font-weight: 400; cursor: pointer; padding: 0; }
 #window-title { flex: 1; text-align: center; font-size: 13px; letter-spacing: 2px; font-weight: 700; color: #999; }
-.app-content { height: calc(100% - 60px); overflow-y: auto; padding: 20px; }
+.header-spacer { width: 50px; }
+.app-content { height: calc(100% - 60px); overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 20px; }
 
-/* CHATS */
-.chat-bubble { margin-bottom: 20px; max-width: 85%; }
+/* INBOX (Messages list) */
+.inbox-row {
+    display: flex; align-items: center; gap: 12px; padding: 12px 0;
+    border-bottom: 1px solid #111; position: relative;
+}
+.inbox-avatar {
+    width: 42px; height: 42px; border-radius: 50%; background: #222;
+    display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;
+}
+.inbox-meta { flex: 1; min-width: 0; }
+.inbox-name { font-size: 15px; font-weight: 600; }
+.inbox-preview { font-size: 12px; color: #777; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.inbox-time { font-size: 11px; color: #555; }
+.unread-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ios-blue); position: absolute; left: -12px; top: 50%; transform: translateY(-50%); }
+
+/* CHATS THREAD */
+.chat-bubble { margin-bottom: 20px; max-width: 85%; position: relative; }
 .chat-bubble.self { margin-left: auto; }
 .chat-meta { font-size: 10px; color: #444; margin-bottom: 4px; text-transform: uppercase; }
-.chat-text { background: var(--surface); padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.4; }
-.self .chat-text { background: #1a1a1a; border: 1px solid #222; }
+.chat-text { background: var(--surface); padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.4; position: relative; }
+.self .chat-text { background: var(--ios-blue); color: #fff; }
+.self.sms .chat-text { background: #34c759; color: #fff; }
+.chat-text::after {
+    content: ''; position: absolute; bottom: 0; left: -6px; width: 12px; height: 12px;
+    background: var(--surface); border-bottom-right-radius: 12px; clip-path: polygon(0 0, 0 100%, 100% 100%);
+}
+.self .chat-text::after {
+    left: auto; right: -6px; background: var(--ios-blue); border-bottom-right-radius: 0;
+    border-bottom-left-radius: 12px; clip-path: polygon(100% 0, 0 100%, 100% 100%);
+}
+.self.sms .chat-text::after { background: #34c759; }
 
 /* GALLERY */
 .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
-.gallery-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; }
-.metadata-view { padding: 20px; }
+.gallery-cell { position: relative; }
+.gallery-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+.seen-check {
+    position: absolute; bottom: 4px; right: 4px; width: 16px; height: 16px; border-radius: 50%;
+    background: var(--accent); color: #000; font-size: 10px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+}
+.metadata-view { padding: 0; }
 .metadata-view img { width: 100%; border-radius: 8px; margin-bottom: 20px; }
 .exif-row { display: flex; justify-content: space-between; font-size: 11px; padding: 8px 0; border-bottom: 1px solid #111; color: #666; }
 .exif-row span:first-child { font-weight: 700; color: #333; }
+
+/* MAP */
+.map-row { margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #111; cursor: pointer; }
+.pin-detail { text-align: center; padding-top: 10px; }
+.pin-map-fake {
+    width: 100%; height: 160px; border-radius: 12px; margin-bottom: 16px; position: relative;
+    background: repeating-linear-gradient(0deg, #0d0d0d, #0d0d0d 20px, #131313 20px, #131313 40px),
+                repeating-linear-gradient(90deg, #0d0d0d, #0d0d0d 20px, #131313 20px, #131313 40px);
+}
+.pin-dot {
+    position: absolute; top: 50%; left: 50%; width: 14px; height: 14px; border-radius: 50%;
+    background: var(--danger); box-shadow: 0 0 0 6px rgba(255,59,48,0.25); transform: translate(-50%,-50%);
+}
+.pin-coords { font-family: monospace; font-size: 12px; color: #555; margin-bottom: 10px; }
+.pin-label { font-weight: 700; font-size: 16px; margin-bottom: 6px; }
+.pin-desc { font-size: 13px; color: #888; }
+
+/* NOTES */
+.note-row { padding: 14px 0; border-bottom: 1px solid #111; cursor: pointer; }
+.note-title { font-weight: 600; font-size: 14px; }
+.note-date { font-size: 11px; color: #555; margin-top: 2px; }
+
+/* MEMOS */
+.memo-row {
+    padding: 14px 0; border-bottom: 1px solid #111; display: flex;
+    justify-content: space-between; align-items: center; cursor: pointer;
+}
+
+/* PHONE / CALL LOG */
+.call-row { padding: 14px 0; border-bottom: 1px solid #111; }
+.call-name { font-size: 15px; font-weight: 600; }
+.call-row.missed .call-name { color: var(--danger); }
+.call-meta { font-size: 11px; color: #666; margin-top: 2px; }
 
 /* VAULT */
 .vault-wrap { text-align: center; padding-top: 50px; }
@@ -96,6 +187,22 @@ body, html {
     outline: none; font-family: monospace; letter-spacing: 10px;
 }
 .shake { animation: shake 0.4s; border-bottom-color: var(--danger) !important; }
+
+/* ENDING ARTIFACT */
+.ending-basic { font-size: 15px; line-height: 1.6; color: #eee; padding: 20px 0; }
+.artifact-board {
+    background: #0a0a0a; border: 1px solid #222; border-radius: 8px; padding: 20px;
+    font-family: monospace; margin-top: 20px;
+}
+.artifact-header { font-size: 12px; letter-spacing: 3px; color: #666; margin-bottom: 16px; text-align: center; }
+.artifact-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #222; font-size: 13px; }
+.artifact-status { color: var(--accent); font-weight: 700; }
+.artifact-footnote { font-size: 11px; color: #555; margin-top: 16px; line-height: 1.5; font-style: italic; }
+
+/* SHUTDOWN */
+.shutdown-active { transition: opacity 0.9s ease; }
+.shutdown-screen { height: 100%; display: flex; align-items: center; justify-content: center; background: #000; }
+.shutdown-msg { color: #444; font-size: 14px; letter-spacing: 3px; }
 
 /* NOTIFS */
 .notif {
@@ -114,33 +221,14 @@ body, html {
 
 .hidden { display: none !important; }
 
-/* GLITCH EFFECT */
+/* GLITCH + FLASH */
 .glitch-active { animation: glitch-anim 0.2s infinite; }
 @keyframes glitch-anim {
     0% { transform: translate(0); filter: hue-rotate(0deg); }
     50% { transform: translate(-2px, 1px); filter: hue-rotate(90deg); }
     100% { transform: translate(2px, -1px); filter: hue-rotate(0deg); }
 }
-
-/* CHAT TAILS */
-.chat-bubble { position: relative; }
-.chat-text { position: relative; }
-.chat-text::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: -6px;
-    width: 12px;
-    height: 12px;
-    background: var(--surface);
-    border-bottom-right-radius: 12px;
-    clip-path: polygon(0 0, 0 100%, 100% 100%);
-}
-.self .chat-text::after {
-    left: auto;
-    right: -6px;
-    background: #1a1a1a;
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 12px;
-    clip-path: polygon(100% 0, 0 100%, 100% 100%);
+.flash-red::before {
+    content: ''; position: fixed; top:0; left:0; width:100%; height:100%;
+    background: rgba(255,59,48,0.25); z-index: 9998; pointer-events: none;
 }

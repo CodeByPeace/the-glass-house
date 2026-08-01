@@ -34,7 +34,8 @@ function renderIcons() {
         gallery: { i: 'Photos', l: 'Photos' }, // Real name
         map: { i: '🗺️', l: 'Maps' },
         memos: { i: '🎙️', l: 'Voice' },
-        vault: { i: '🔒', l: 'Files' }
+        vault: { i: '🔒', l: 'Files' },
+        notes: { i: '📝', l: 'Notes' }
     };
     grid.innerHTML = window.CASE.apps.map(id => `
         <div class="icon" onclick="openApp('${id}')">
@@ -53,7 +54,7 @@ function openApp(id) {
     const title = document.getElementById('window-title');
     win.classList.remove('hidden');
 
-    const appTitles = { chats: 'Messages', gallery: 'Photos', map: 'Maps', memos: 'Voice Memos', vault: 'Secure Folder' };
+    const appTitles = { chats: 'Messages', gallery: 'Photos', map: 'Maps', memos: 'Voice Memos', notes: 'Notes', vault: 'Secure Folder' };
     title.innerText = appTitles[id] || 'App';
 
     if (id === 'chats') renderChats(body);
@@ -61,6 +62,7 @@ function openApp(id) {
     if (id === 'map') renderMap(body);
     if (id === 'memos') renderMemos(body);
     if (id === 'vault') renderVault(body);
+    if (id === 'notes') renderNotes(body);
 }
 
 function renderChats(body) {
@@ -152,4 +154,13 @@ function scrub(v) {
     }
     document.getElementById('m-sub').innerText = (v > 70) ? m.reveal : m.idle;
     document.getElementById('m-sub').style.color = (v > 70) ? '#00ffcc' : '#444';
+}
+function renderNotes(body) {
+    body.innerHTML = window.CASE.notes.map(n => `
+        <div style="margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid #111;">
+            <div style="font-size:11px; color:#555;">${n.date}</div>
+            ${n.title ? `<div style="font-weight:600; margin:4px 0;">${n.title}</div>` : ''}
+            <div style="font-size:14px; color:#ccc; white-space:pre-wrap;">${n.body}</div>
+        </div>
+    `).join('');
 }

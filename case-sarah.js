@@ -1,5 +1,5 @@
 window.CASE = {
-    apps: ['chats', 'gallery', 'map', 'memos', 'vault'],
+    apps: ['chats', 'gallery', 'map', 'memos', 'notes', 'vault'],
     freshApp: 'chats',
     chats: [
         { u: 'Mom', t: '09:14', msg: 'did u take the chicken out' },
@@ -37,6 +37,23 @@ window.CASE = {
         { t: '22:14', l: 'The Dock', d: 'Signal Lost. Last speed: 12mph' }
     ],
     memos: [{ filename: 'Voice 001', audioSrc: window.ASSETS.sarah_forensic, idle: '[Static]', reveal: 'SARAH: (whispering) i know u saw the alert leo. im not going back.' }],
+    notes: [
+        {
+            title: "grocery / door stuff",
+            date: "Edited 2d ago",
+            body: "eggs\noat milk\nthe good bread not the cheap one\nfront door code is still 0417 til landlord changes it"
+        },
+        {
+            title: "",
+            date: "Edited 6h ago",
+            body: "leo i dont even know how to say this without it sounding\n\nok starting over\n\nmarcus if ur reading this instead i need you to und"
+        },
+        {
+            title: "wifi / random",
+            date: "Edited 1w ago",
+            body: "lake house wifi: SunsetDock22\n\nwhy do i always forget this"
+        }
+    ],
     vault: {
         code: '2214',
         partial: "You found the ticket, but it's too late. She's gone.",

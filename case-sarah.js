@@ -17,6 +17,21 @@ window.CASE = {
     ],
     gallery: [
         {
+            img: window.ASSETS.coffee_photo,
+            exif: { date: 'Jun 12, 2024 - 8:14 AM', loc: 'Starbucks' },
+            desc: "iced coffee, oat milk"
+        },
+        {
+            img: window.ASSETS.spotify_photo,
+            exif: { date: 'Jun 10, 2024 - 6:32 PM', loc: 'Screenshot' },
+            desc: "screenshot of a playlist"
+        },
+        {
+            img: window.ASSETS.rain_photo,
+            exif: { date: 'Jun 9, 2024 - 4:50 PM', loc: 'Lake House Porch' },
+            desc: "rain on the window"
+        },
+        {
             img: window.ASSETS.mirror_photo,
             exif: { date: 'Jun 14, 2024 - 9:00 PM', loc: 'Lake House Hallway' },
             desc: "mirror selfie. reflection shows a jacket on the coat hook behind her."

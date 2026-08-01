@@ -2,49 +2,49 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GHOST_DRIVE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Restore from Backup</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600&family=JetBrains+Mono:wght@300&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="crt-overlay"></div>
+    <div class="crt-filter"></div>
     <audio id="bg-music" loop><source src="https://assets.mixkit.co/music/preview/mixkit-atmospheric-dream-40.mp3" type="audio/mpeg"></audio>
     <audio id="sfx-ping"><source src="https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-2574.mp3" type="audio/mpeg"></audio>
 
     <div id="boot-screen" onclick="startSystem()">
-        <div class="boot-content">
-            <h1 class="glitch-text">GHOST_DRIVE</h1>
-            <p>&gt; ATTEMPTING_REMOTE_MOUNT... [OK]</p>
-            <p>&gt; SOURCE: CLOUD_BACKUP</p>
-            <p class="blink">&gt; [ TOUCH TO INITIALIZE ]</p>
+        <div class="boot-loader">
+            <div class="apple-logo"></div>
+            <div class="progress-container"><div class="progress-bar"></div></div>
+            <p id="boot-status">Restoring from iCloud...</p>
+            <p class="blink-hint">Tap to Continue</p>
         </div>
     </div>
 
-    <div id="desktop" class="hidden">
-        <div class="taskbar">
-            <div class="sys-id">NODE_730 // RECOVERY_ACTIVE</div>
-            <div class="clock" id="clock">--:--</div>
-        </div>
-
-        <div class="icon-grid" id="icon-grid"></div>
-
-        <div id="window-overlay" class="window-overlay hidden">
-            <div class="window-content">
-                <div class="window-header">
-                    <span id="window-title">APP</span>
-                    <span class="close-btn" onclick="closeWindow()">×</span>
-                </div>
-                <div id="app-body" class="app-body"></div>
+    <div id="os-shell" class="hidden">
+        <div class="status-bar">
+            <div class="carrier">Verizon</div>
+            <div class="status-right">
+                <span id="clock">12:00</span>
+                <div class="battery-icon"><div id="battery-level"></div></div>
             </div>
         </div>
 
-        <div id="notif" class="notif hidden">
-            <div class="notif-header">SYSTEM ALERT</div>
-            <p id="notif-msg"></p>
+        <div id="home-screen" class="screen">
+            <div class="app-grid" id="icon-grid"></div>
         </div>
-    </div>
 
+        <div id="app-window" class="screen hidden">
+            <header class="app-header">
+                <button class="back-btn" onclick="goHome()">Back</button>
+                <h2 id="window-title">App</h2>
+                <div class="header-spacer"></div>
+            </header>
+            <div id="app-body" class="app-content"></div>
+        </div>
+        <div id="notification-center"></div>
+    </div>
     <script src="case-sarah.js"></script>
     <script src="engine.js"></script>
 </body>

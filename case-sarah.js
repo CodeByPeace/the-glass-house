@@ -1,62 +1,36 @@
-/* ============================================================
-   CASE FILE: "THE LAKE HOUSE" (Sarah)
-   This is the ONLY file you touch to write a new episode.
-   Copy this file, rename it (case-<name>.js), edit the content
-   below, and swap the <script> tag in index.html to load it.
-   ============================================================ */
-
 window.CASE = {
     apps: ['chats', 'gallery', 'map', 'memos', 'vault'],
-    freshApp: 'memos',
-
+    freshApp: 'chats',
     chats: [
-        { u: 'SARAH',   t: "I'm at the dock. Leo doesn't know." },
-        { u: 'UNKNOWN', t: "He knows. Check the Fit Check photo. He's in the mirror." },
-        { u: 'SARAH',   t: "Wait... if he's in the house, who is Ashley with?" },
-        { u: 'UNKNOWN', t: "Ashley isn't at the lake, Sarah. She never was." }
+        { u: 'Mom', t: '14:20', msg: 'did u get the chicken out of the freezer??' },
+        { u: 'SARAH', t: '14:22', msg: 'not yet omw home now' },
+        { u: 'Mom', t: '14:25', msg: 'leo called he said he left his card with u. the gold one ending in 9902? let him know.' },
+        { u: 'SARAH', t: '14:26', msg: 'ugh fine ill tell him' },
+        { u: 'SARAH', t: '22:04', msg: 'im at the dock. he thinks im at the bar lol' },
+        { u: 'Unknown Number', t: '22:05', msg: 'hes not at the bar sarah. look at the mirror in that pic u took.' },
+        { u: 'SARAH', t: '22:06', msg: 'wait what? hes at the lake house with ashley' },
+        { u: 'Unknown Number', t: '22:07', msg: 'ashleys phone is in the city. u r alone. get out.' }
     ],
-
     gallery: [
         {
             img: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205',
-            metadata: "Taken at 10:00 PM. High-res zoom reveals Leo in the background — but he's not looking at Sarah. He's looking at Marcus."
-        },
-        {
-            img: 'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70',
-            metadata: "No unusual details. Just the lake at dusk. Sarah captioned it 'last night here for a while.'"
+            exif: { date: 'Jun 14, 2024 - 9:00 PM', loc: 'Lake House Hallway' },
+            desc: "just a fit check... wait, is that his jacket in the background?"
         },
         {
             img: 'https://images.unsplash.com/photo-1534353473418-4cfa6c56fd38',
-            metadata: "Sarah is holding a plane ticket. The destination is obscured, but the date is today."
+            exif: { date: 'Jun 14, 2024 - 10:14 PM', loc: 'Lake House Kitchen' },
+            desc: "screenshot of the ticket. card used: *9902. ashley was right."
         }
     ],
-
     map: [
-        { t: '11:00 PM', l: 'Main House',  d: 'Toast recorded.' },
-        { t: '01:00 AM', l: 'Guest Room',  d: 'Sarah realized she was being watched.' },
-        { t: '02:14 AM', l: 'The Dock',    d: 'SIGNAL LOST.' }
+        { t: '21:00', l: 'Main House', d: 'Stationary for 14m' },
+        { t: '22:14', l: 'The Dock', d: 'Signal Lost. Last speed: 12mph' }
     ],
-
-    memos: [
-        {
-            filename: '02:14_DOCK_AMBIENT.WAV',
-            idleText: '[WIND AND STATIC]',
-            revealText: "LEO: 'Sarah? I know you're here. Let's talk about the money.'",
-            revealThreshold: 70,
-            audioSrc: null
-        }
-    ],
-
+    memos: [{ filename: 'Voice 001', idle: '[Static]', reveal: 'SARAH: (whispering) i know u saw the alert leo. im not going back.' }],
     vault: {
-        prompt: 'RECOVERY KEY REQUIRED (4-DIGIT DOCK TIME)',
-        code: '0214',
-        shallowRevealText: "Sarah is gone. Leo's at the dock, still waiting. Something about the timeline doesn't add up, but you didn't look closely enough to say what.",
-        revealText: "Leo didn't find Sarah. Sarah found Leo. The person in the mirror wasn't Leo — it was the investigator Sarah hired to fake her own death. Leo is at the dock because he's trying to stop her from leaving with the money. But look at the GPS: Sarah's phone is at the dock, but her car just crossed the bridge. She left the phone behind to lead him there. Ashley was never part of it. But someone paid for that plane ticket — and it wasn't Sarah's card."
-    },
-
-    liveIntrusion: {
-        trigger: 'after_first_app_open',
-        message: "ASHLEY: Where are you?? Leo just left the bar and he looks furious.",
-        displaySeconds: 7
+        code: '2214',
+        partial: "You found the ticket, but it's too late. She's gone.",
+        full: "Sarah played them both. She used Leo's card to buy the ticket and used Ashley as a distraction. She left her phone on a boat at 22:14 and she's already at the airport. She won."
     }
 };

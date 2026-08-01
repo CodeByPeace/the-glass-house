@@ -1,310 +1,149 @@
-/* ============================================================
-   GHOST DRIVE ENGINE
-   Generic OS-shell logic. Never edit this file to add a new case —
-   add a new case-*.js file instead. See case-sarah.js for the
-   reference structure every case must follow.
-   ============================================================ */
-
-const engineState = {
-    booted: false,
-    liveStoryFired: false,
-    appsOpenedCount: 0,
-    lastDiscoveryTime: null,
-    stuckCheckStarted: false,
-    hintFired: false,
-    detailsOpened: 0
+const engine = {
+    sessionCount: parseInt(localStorage.getItem('gd_sessions') || 0),
+    battery: 84,
+    startTime: Date.now(),
+    discovered: new Set(),
+    isBooted: false,
+    currentApp: null
 };
+localStorage.setItem('gd_sessions', engine.sessionCount + 1);
 
 function startSystem() {
     document.getElementById('boot-screen').classList.add('hidden');
-    document.getElementById('desktop').classList.remove('hidden');
-    document.getElementById('bg-music').play().catch(() => {});
-    engineState.booted = true;
-    renderIconGrid();
-    startClock();
-    scheduleLiveIntrusion();
+    document.getElementById('os-shell').classList.remove('hidden');
+    const bg = document.getElementById('bg-music');
+    if (bg) { bg.volume = 0.3; bg.play().catch(()=>{}); }
+    renderIcons();
+    updateClock();
+    setInterval(updateClock, 1000);
+    startStuckCheck();
 }
 
-function startClock() {
-    const clockEl = document.getElementById('clock');
-    if (!clockEl) return;
-    const tick = () => {
-        const now = new Date();
-        let h = now.getHours();
-        const m = now.getMinutes().toString().padStart(2, '0');
-        const ampm = h >= 12 ? 'PM' : 'AM';
-        h = h % 12 || 12;
-        clockEl.innerText = `${h}:${m} ${ampm}`;
-    };
-    tick();
-    setInterval(tick, 30000);
+function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+    const elapsed = (Date.now() - engine.startTime) / 1000;
+    engine.battery = Math.max(0, 84 - Math.floor(elapsed / 15));
+    document.getElementById('battery-level').style.width = engine.battery + '%';
 }
 
-const APP_META = {
-    chats:  { icon: '💬', label: 'Chats' },
-    gallery:{ icon: '🖼️', label: 'Gallery' },
-    map:    { icon: '📍', label: 'Map' },
-    memos:  { icon: '🎙️', label: 'Memos' },
-    vault:  { icon: '🔒', label: 'Vault' },
-    group:  { icon: '👥', label: 'Group Chat' }
-};
-
-function renderIconGrid() {
+function renderIcons() {
     const grid = document.getElementById('icon-grid');
-    if (!grid || !window.CASE) return;
-    const apps = window.CASE.apps || [];
-    grid.innerHTML = apps.map(appId => {
-        const meta = APP_META[appId] || { icon: '📁', label: appId };
-        return `<div class="icon" onclick="openApp('${appId}')" style="position:relative;">
-                    ${appId === (window.CASE.freshApp || '') ? '<span style="position:absolute; top:-4px; right:8px; width:8px; height:8px; background:var(--accent); border-radius:50%; box-shadow:0 0 8px var(--accent);"></span>' : ''}
-                    <div class="app-icon">${meta.icon}</div>
-                    <span>${meta.label}</span>
-                </div>`;
-    }).join('');
-}
-
-function openApp(appId) {
-    if (!window.CASE) return;
-    engineState.appsOpenedCount++;
-
-    const overlay = document.getElementById('window-overlay');
-    const body = document.getElementById('app-body');
-    const title = document.getElementById('window-title');
-    overlay.classList.remove('hidden');
-
-    const renderers = {
-        chats: renderChats,
-        gallery: renderGallery,
-        map: renderMap,
-        memos: renderMemos,
-        vault: renderVault,
-        group: renderGroupChat
+    const meta = {
+        chats: { i: '💬', l: 'Messages' },
+        gallery: { i: 'Photos', l: 'Photos' }, // Real name
+        map: { i: '🗺️', l: 'Maps' },
+        memos: { i: '🎙️', l: 'Voice' },
+        vault: { i: '🔒', l: 'Files' }
     };
-
-    const renderer = renderers[appId];
-    if (!renderer) {
-        title.innerText = 'UNKNOWN_APP';
-        body.innerHTML = `<p style="color:#444;">This app has no case data yet.</p>`;
-        return;
-    }
-    renderer(title, body);
-}
-
-function closeWindow() {
-    document.getElementById('window-overlay').classList.add('hidden');
-}
-
-function renderChats(title, body) {
-    title.innerText = 'ENCRYPTED_COMMS';
-    const chats = window.CASE.chats || [];
-    body.innerHTML = chats.map(m =>
-        `<div class="chat-bubble"><strong>${m.u}</strong>${m.t}</div>`
-    ).join('');
-}
-
-function renderGroupChat(title, body) {
-    title.innerText = 'GROUP_CHAT';
-    const msgs = (window.CASE.group && window.CASE.group.messages) || [];
-    body.innerHTML = msgs.map(m =>
-        `<div class="chat-bubble"><strong>${m.u}</strong>${m.t}</div>`
-    ).join('');
-}
-
-function shuffleArray(arr) {
-    const a = arr.slice();
-    for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-}
-
-function renderGallery(title, body) {
-    title.innerText = 'EVIDENCE_DUMP';
-    const items = window.CASE.gallery || [];
-    body.innerHTML = `
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-            ${items.map((it, i) =>
-                `<img src="${it.img}" style="width:100%; border-radius:10px;" onclick="revealDetail(${i})">`
-            ).join('')}
-        </div>
-        <p style="font-size:0.6rem; color:#444; margin-top:20px;">NOTE: Tap to inspect metadata.</p>
-    `;
-}
-
-function revealDetail(index) {
-    const items = window.CASE.gallery || [];
-    const item = items[index];
-    if (!item) return;
-    engineState.lastDiscoveryTime = Date.now();
-    engineState.detailsOpened++;
-    const overlay = document.getElementById('window-overlay');
-    const body = document.getElementById('app-body');
-    const title = document.getElementById('window-title');
-    overlay.classList.remove('hidden');
-    title.innerText = 'METADATA';
-    body.innerHTML = `
-        <img src="${item.img}" style="width:100%; border-radius:10px; margin-bottom:20px;">
-        <p style="font-size:0.85rem; color:#ccc; line-height:1.6;">${item.metadata}</p>
-        <p style="font-size:0.6rem; color:#444; margin-top:20px; cursor:pointer;" onclick="openApp('gallery')">‹ BACK TO GALLERY</p>
-    `;
-}
-
-function renderMap(title, body) {
-    title.innerText = 'GPS_TRACE';
-    const points = window.CASE.map || [];
-    body.innerHTML = points.map(m => `
-        <div style="margin-bottom:20px; border-bottom:1px solid #111; padding-bottom:10px;">
-            <span style="color:var(--accent); font-size:0.6rem; font-family:'JetBrains Mono';">${m.t}</span>
-            <p style="font-size:0.8rem; margin:5px 0;">${m.l}</p>
-            <p style="font-size:0.6rem; color:#444;">${m.d}</p>
+    grid.innerHTML = window.CASE.apps.map(id => `
+        <div class="icon" onclick="openApp('${id}')">
+            ${id === window.CASE.freshApp ? '<div class="badge"></div>' : ''}
+            <div class="app-icon">${id === 'gallery' ? '📷' : meta[id].i}</div>
+            <span>${meta[id].l}</span>
         </div>
     `).join('');
 }
 
-function renderMemos(title, body) {
-    title.innerText = 'AUDIO_SURVEILLANCE';
-    const memo = (window.CASE.memos && window.CASE.memos[0]) || null;
-    if (!memo) {
-        body.innerHTML = `<p style="color:#444;">No audio on file.</p>`;
-        return;
-    }
-    body.innerHTML = `
-        <div class="audio-ui">
-            <p style="font-size:0.7rem; color:#888;">${memo.filename || 'AUDIO.WAV'}</p>
-            <div class="scrubber" onclick="scrub(event)"><div class="scrubber-fill" id="fill"></div></div>
-            <p id="audio-sub" style="font-style:italic; font-size:0.8rem; color:var(--accent);">${memo.idleText || '[SILENCE]'}</p>
-            ${memo.audioSrc ? `<audio id="memo-audio" src="${memo.audioSrc}"></audio>` : ''}
+function openApp(id) {
+    engine.currentApp = id;
+    engine.lastAction = Date.now();
+    const win = document.getElementById('app-window');
+    const body = document.getElementById('app-body');
+    const title = document.getElementById('window-title');
+    win.classList.remove('hidden');
+
+    const appTitles = { chats: 'Messages', gallery: 'Photos', map: 'Maps', memos: 'Voice Memos', vault: 'Secure Folder' };
+    title.innerText = appTitles[id] || 'App';
+
+    if (id === 'chats') renderChats(body);
+    if (id === 'gallery') renderGallery(body);
+    if (id === 'map') renderMap(body);
+    if (id === 'memos') renderMemos(body);
+    if (id === 'vault') renderVault(body);
+}
+
+function renderChats(body) {
+    body.innerHTML = window.CASE.chats.map(m => `
+        <div class="chat-bubble ${m.u === 'SARAH' ? 'self' : ''}">
+            <div class="chat-meta">${m.u} • ${m.t}</div>
+            <div class="chat-text">${m.msg}</div>
         </div>
-    `;
+    `).join('');
 }
 
-function scrub(e) {
-    const fill = document.getElementById('fill');
-    const sub = document.getElementById('audio-sub');
-    const memo = (window.CASE.memos && window.CASE.memos[0]) || null;
-    if (!memo) return;
-
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-    const w = Math.max(0, Math.min(100, (x / rect.width) * 100));
-    fill.style.width = w + '%';
-
-    const threshold = memo.revealThreshold != null ? memo.revealThreshold : 70;
-    if (w > threshold) {
-        sub.innerText = memo.revealText || '[SIGNAL FOUND]';
-        const audioEl = document.getElementById('memo-audio');
-        if (audioEl && memo.audioSrc && audioEl.paused) {
-            audioEl.currentTime = 0;
-            audioEl.play().catch(() => {});
-        }
-    } else {
-        sub.innerText = memo.idleText || '[WIND AND STATIC]';
-    }
+function renderGallery(body) {
+    body.innerHTML = `<div class="gallery-grid">
+        ${window.CASE.gallery.map((it, i) => `<img src="${it.img}" onclick="viewPhoto(${i})">`).join('')}
+    </div>`;
 }
 
-function renderVault(title, body) {
-    title.innerText = 'FINAL_DISPOSITION';
-    const vault = window.CASE.vault || {};
+function viewPhoto(i) {
+    engine.discovered.add(i);
+    const item = window.CASE.gallery[i];
+    const body = document.getElementById('app-body');
     body.innerHTML = `
-        <div style="text-align:center;">
-            <p style="font-size:0.7rem; color:#444;">${vault.prompt || 'RECOVERY KEY REQUIRED'}</p>
-            <p style="font-size:0.55rem; color:#2a2a2a; margin-top:6px; font-family:'JetBrains Mono';">LAST_ACCESSED: 2 MIN AGO — UNKNOWN_DEVICE</p>
-            <input id="vault-input" type="tel" maxlength="${(vault.code || '').length || 4}"
-                   style="background:transparent; border:none; border-bottom:1px solid #222; color:var(--accent); font-size:2.5rem; text-align:center; width:100%; outline:none; margin-top:30px;"
-                   oninput="checkVaultCode(this.value)">
-            <div id="final-reveal" class="hidden" style="margin-top:30px; text-align:left; font-size:0.9rem; color:#888; line-height:1.6;">
-                <p><strong>CASE SUMMARY:</strong> ${getEngagementAwareReveal(vault)}</p>
+        <div class="metadata-view">
+            <img src="${item.img}">
+            <div class="exif-data">
+                <div class="exif-row"><span>Date</span><span>${item.exif.date}</span></div>
+                <div class="exif-row"><span>Location</span><span>${item.exif.loc}</span></div>
+                <hr style="border:none; border-top:1px solid #111; margin: 15px 0;">
+                <p style="font-size:14px; color:#ccc;">${item.desc}</p>
             </div>
+            <button class="back-btn" onclick="openApp('gallery')" style="margin-top:20px; width:100%; border:1px solid #333; padding:12px; background:#111; color:white; border-radius:10px;">Done</button>
         </div>
     `;
 }
 
-function getEngagementAwareReveal(vault) {
-    const galleryTotal = (window.CASE.gallery || []).length;
-    const detailedEnough = engineState.detailsOpened >= Math.ceil(galleryTotal * 0.6);
-    if (detailedEnough || !vault.shallowRevealText) {
-        return vault.revealText || '';
-    }
-    return vault.shallowRevealText;
-}
-
-function checkVaultCode(value) {
-    const vault = window.CASE.vault || {};
-    if (value === vault.code) {
-        document.getElementById('final-reveal').classList.remove('hidden');
-        document.getElementById('vault-input').classList.add('hidden');
-    }
-}
-
-function scheduleLiveIntrusion() {
-    const cfg = window.CASE && window.CASE.liveIntrusion;
-    if (!cfg) return;
-
-    if (cfg.trigger === 'after_first_app_open') {
-        const check = setInterval(() => {
-            if (engineState.appsOpenedCount >= 1 && !engineState.liveStoryFired) {
-                clearInterval(check);
-                fireLiveIntrusion(cfg);
-            }
-        }, 500);
-    } else {
-        const delay = cfg.delaySeconds != null ? cfg.delaySeconds * 1000 : 20000;
-        setTimeout(() => fireLiveIntrusion(cfg), delay);
-    }
-}
-
-function fireLiveIntrusion(cfg) {
-    if (engineState.liveStoryFired) return;
-    engineState.liveStoryFired = true;
-    const n = document.getElementById('notif');
-    const ping = document.getElementById('sfx-ping');
-    if (ping) ping.play().catch(() => {});
-    document.getElementById('notif-msg').innerText = cfg.message;
-    n.classList.remove('hidden');
-    setTimeout(() => n.classList.add('hidden'), cfg.displaySeconds ? cfg.displaySeconds * 1000 : 7000);
-}
-
-/* -------------------- STUCK WATCHER / GLITCH CUE -------------------- */
-
-function startStuckWatcher() {
+function goHome() { document.getElementById('app-window').classList.add('hidden'); }
+function startStuckCheck() {
     setInterval(() => {
-        if (!engineState.lastDiscoveryTime) return;
-        const idleMs = Date.now() - engineState.lastDiscoveryTime;
-        if (idleMs > 90000) {
-            triggerGlitch();
-            engineState.lastDiscoveryTime = Date.now(); // don't spam, re-arm for next 90s
-        }
-        if (idleMs > 180000 && !engineState.hintFired) {
-            engineState.hintFired = true;
-            fireHint();
-        }
-    }, 5000);
+        const idle = Date.now() - (engine.lastAction || Date.now());
+        if (idle > 60000) document.body.classList.add('glitch-active');
+        setTimeout(()=>document.body.classList.remove('glitch-active'), 300);
+    }, 10000);
 }
 
-function triggerGlitch() {
-    const desktop = document.getElementById('desktop');
-    const overlay = document.getElementById('window-overlay');
-    const target = overlay && !overlay.classList.contains('hidden') ? overlay : desktop;
-    target.classList.add('glitch-active');
-    duckAmbient();
-    setTimeout(() => target.classList.remove('glitch-active'), 500);
+function renderVault(body) {
+    body.innerHTML = `
+        <div class="vault-wrap">
+            <p style="font-size:13px; color:#666;">Enter Passcode</p>
+            <input type="tel" id="vault-input" maxlength="4" style="background:none; border:none; border-bottom:2px solid #333; color:white; font-size:32px; text-align:center; width:120px; outline:none; letter-spacing:8px;" oninput="checkVault(this)">
+            <p style="font-size:11px; color:#222; margin-top:40px;">Hint: Check Maps</p>
+        </div>
+    `;
 }
 
-function duckAmbient() {
-    const music = document.getElementById('bg-music');
-    if (!music) return;
-    const original = music.volume || 1;
-    music.volume = 0.15;
-    setTimeout(() => { music.volume = original; }, 2500);
+function checkVault(el) {
+    if (el.value.length < 4) return;
+    if (el.value === window.CASE.vault.code) {
+        const reveal = (engine.discovered.size / window.CASE.gallery.length) >= 0.6 ? window.CASE.vault.full : window.CASE.vault.partial;
+        document.getElementById('app-body').innerHTML = `<div style="font-size:15px; line-height:1.6; color:#eee">${reveal}</div>`;
+    } else {
+        el.value = '';
+        el.classList.add('shake');
+        setTimeout(()=>el.classList.remove('shake'), 400);
+    }
 }
-
-function fireHint() {
-    const n = document.getElementById('notif');
-    const ping = document.getElementById('sfx-ping');
-    if (ping) ping.play().catch(() => {});
-    duckAmbient();
-    document.getElementById('notif-msg').innerText = (window.CASE.hintText || 'Look closer. Something on this device doesn\'t add up yet.');
-    n.classList.remove('hidden');
-    setTimeout(() => n.classList.add('hidden'), 7000);
+function renderMap(body) {
+    body.innerHTML = window.CASE.map.map(m => `<div style="margin-bottom:20px; padding-bottom:10px; border-bottom:1px solid #111">
+        <div style="font-size:11px; color:#555">${m.t}</div>
+        <div style="font-weight:600; margin:4px 0">${m.l}</div>
+        <div style="font-size:12px; color:#888">${m.d}</div>
+    </div>`).join('');
+}
+function renderMemos(body) {
+    const m = window.CASE.memos[0];
+    body.innerHTML = `<div style="text-align:center; padding-top:40px;">
+        <div style="height:3px; background:#222; width:100%; position:relative; margin-bottom:20px"><div id="m-progress" style="height:100%; width:0%; background:#00ffcc;"></div>
+        <input type="range" style="width:100%; position:absolute; left:0; top:0; opacity:0;" oninput="scrub(this.value)"></div>
+        <p id="m-sub" style="color:#444; font-style:italic;">${m.idle}</p>
+    </div>`;
+}
+function scrub(v) {
+    const m = window.CASE.memos[0];
+    document.getElementById('m-progress').style.width = v + '%';
+    document.getElementById('m-sub').innerText = (v > 70) ? m.reveal : m.idle;
+    document.getElementById('m-sub').style.color = (v > 70) ? '#00ffcc' : '#444';
 }

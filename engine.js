@@ -458,31 +458,23 @@ function checkVault(el) {
 }
 
 function triggerEnding(key) {
-    if (key !== 'walkaway' && !engagementMet()) return; // deep endings require engagement
+    if (key !== 'walkaway' && !engagementMet()) return;
     engine.endingReached = true;
     const ending = window.CASE.vault.endings[key];
     const body = document.getElementById('app-body');
 
-    if (ending.effect === 'white-glitch') {
-        document.body.classList.add('white-flash');
-        setTimeout(() => document.body.classList.remove('white-flash'), 400);
-    }
-    if (ending.effect === 'red-tear') {
-        document.body.classList.add('red-tear-active');
-    }
-    if (ending.effect === 'flicker') {
-        document.body.classList.add('glitch-active');
-        setTimeout(() => document.body.classList.remove('glitch-active'), 600);
-    }
+    body.innerHTML = '<div class="ending-transition"></div>';
+    document.body.classList.add('ending-fx-' + ending.effect);
 
     setTimeout(() => {
+        document.body.classList.remove('ending-fx-' + ending.effect);
         body.innerHTML = ending.artifactHtml;
         const cont = document.createElement('button');
         cont.className = 'continue-btn';
         cont.innerText = 'continue';
         cont.onclick = showPersonalScreen;
         body.appendChild(cont);
-    }, ending.effect === 'white-glitch' ? 450 : 50);
+    }, 1200);
 }
 
 function showPersonalScreen() {

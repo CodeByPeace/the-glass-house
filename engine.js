@@ -76,6 +76,45 @@ function startSystem() {
     saveProgress();
 }
 
+
+function updateClock() {
+    if (engine.shutdown) return;
+    const now = new Date();
+    const clockEl = document.getElementById("clock");
+    if (clockEl) clockEl.innerText = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
+
+    const elapsed = (Date.now() - engine.startTime) / 1000;
+    engine.battery = Math.max(0, 18 - Math.floor(elapsed / 25));
+    const levelEl = document.getElementById("battery-level");
+    if (levelEl) levelEl.style.width = engine.battery + "%";
+
+    if (engine.battery <= 5) {
+        document.getElementById("battery-icon")?.classList.add("critical");
+    }
+    if (engine.battery === 1 && !engine.lowBatteryFired) {
+        engine.lowBatteryFired = true;
+        showNotification("Battery", "1% Remaining", null);
+    }
+
+    if (engine.battery <= 0 && !engine.shutdown) {
+        triggerShutdown();
+    }
+}
+
+function triggerShutdown() {
+    engine.shutdown = true;
+    const bg = document.getElementById("bg-music");
+    if (bg) { bg.pause(); }
+    document.body.classList.add("shutdown-active");
+    setTimeout(() => {
+        document.getElementById("os-shell").innerHTML = `
+            <div class="shutdown-screen">
+                <div class="apple-spinner"></div>
+                <div class="shutdown-msg">iPhone is findable after power off.</div>
+            </div>`;
+    }, 900);
+}
+
 function renderIcons() {
     const grid = document.getElementById('icon-grid');
     const meta = {

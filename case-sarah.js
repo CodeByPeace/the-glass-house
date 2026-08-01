@@ -1,22 +1,35 @@
 window.CASE = {
+    gameTitle: 'The Glass House',
+    aiName: 'Nova',
     apps: ['chats', 'gallery', 'map', 'memos', 'notes', 'phone'],
     freshApp: 'chats',
+
+    bootLines: [
+        "Nova: restoring backup...",
+        "Nova: hey. i know this isn't your phone. i'll walk you through it.",
+        "Nova: some of this is going to be hard to read. keep going anyway."
+    ],
 
     threads: [
         {
             id: 'mom',
             name: 'Mom',
             avatar: 'M',
-            lastTime: '14:25',
-            preview: 'leo called he said he left his card with u...',
+            lastTime: '23:58',
+            preview: 'sarah its almost midnight please call me back',
             messages: [
                 { u: 'Mom', t: '09:14', msg: 'did u take the chicken out' },
                 { u: 'SARAH', t: '09:45', msg: 'omg ok taking it out now', self: true, kind: 'imsg' },
+                { u: 'Mom', t: '09:46', msg: 'thank you. how did you sleep' },
+                { u: 'SARAH', t: '09:50', msg: 'fine. weird dream tho', self: true, kind: 'imsg' },
                 { u: 'Mom', t: '14:20', msg: 'did u get the chicken out of the freezer??' },
                 { u: 'SARAH', t: '14:22', msg: 'not yet omw home now', self: true, kind: 'imsg' },
                 { u: 'Mom', t: '14:25', msg: 'leo called he said he left his card with u. the gold one ending in 9902? let him know.' },
                 { u: 'SARAH', t: '14:26', msg: 'ugh fine ill tell him', self: true, kind: 'imsg' },
+                { u: 'Mom', t: '14:27', msg: 'you okay? you seem off lately' },
+                { u: 'SARAH', t: '14:31', msg: 'im fine mom. just tired', self: true, kind: 'imsg' },
                 { u: 'Mom', t: '21:40', msg: 'you still at the lake house? call me when u see this' },
+                { u: 'Mom', t: '22:50', msg: 'ashley called me. she said you left without your bag' },
                 { u: 'Mom', t: '23:58', msg: 'sarah its almost midnight please call me back' }
             ]
         },
@@ -24,26 +37,32 @@ window.CASE = {
             id: 'jake',
             name: 'Jake (Work)',
             avatar: 'J',
-            lastTime: '18:11',
-            preview: 'locked myself out again lol can u bring it thurs',
+            lastTime: '18:22',
+            preview: 'the spare key u have from when i watched ur cat lol',
             messages: [
                 { u: 'Jake (Work)', t: '11:02', msg: "hey can u cover my closing shift thurs" },
                 { u: 'SARAH', t: '11:15', msg: 'yeah should be fine', self: true, kind: 'sms' },
+                { u: 'Jake (Work)', t: '11:16', msg: "ur a lifesaver" },
                 { u: 'Jake (Work)', t: '18:11', msg: "locked myself out again lol can u bring it thurs" },
                 { u: 'SARAH', t: '18:20', msg: 'bring what', self: true, kind: 'sms' },
-                { u: 'Jake (Work)', t: '18:22', msg: "the spare key u have from when i watched ur cat lol" }
+                { u: 'Jake (Work)', t: '18:22', msg: "the spare key u have from when i watched ur cat lol" },
+                { u: 'Jake (Work)', t: '20:45', msg: "u good? u seemed off when u left the shift tuesday" },
+                { u: 'Jake (Work)', t: '20:46', msg: "leo came by looking kinda intense ngl" }
             ]
         },
         {
             id: 'lakehouse',
             name: 'the lake house 🏡',
             avatar: '🏡',
-            lastTime: '20:02',
-            preview: 'Ashley: did anyone else hear that',
+            lastTime: '20:03',
+            preview: 'Ashley: nvm probably just the dock',
             messages: [
                 { u: 'Ashley', t: '19:40', msg: 'did you leave the back door unlocked? just checking' },
                 { u: 'Priya', t: '19:44', msg: 'lmaooo sarah probably forgot again' },
                 { u: 'SARAH', t: '19:50', msg: 'i did not!! it was like that when i got here', self: true, kind: 'sms' },
+                { u: 'Ashley', t: '19:52', msg: 'weird. leo said he already left for the city' },
+                { u: 'Priya', t: '19:53', msg: 'so who unlocked it' },
+                { u: 'SARAH', t: '19:55', msg: 'probably just me being dumb lol dont worry about it', self: true, kind: 'sms' },
                 { u: 'Ashley', t: '20:02', msg: 'did anyone else hear that' },
                 { u: 'Priya', t: '20:03', msg: 'hear what' },
                 { u: 'Ashley', t: '20:03', msg: 'nvm probably just the dock' }
@@ -53,8 +72,8 @@ window.CASE = {
             id: 'unknown',
             name: 'Unknown Number',
             avatar: '?',
-            lastTime: '22:07',
-            preview: "ashleys phone is in the city. u r alone. get out.",
+            lastTime: '22:09',
+            preview: 'check the boarding pass screenshot. departure time.',
             messages: [
                 { u: 'Unknown Number', t: '22:05', msg: 'hes not at the bar sarah. look at the mirror in that pic u took.' },
                 { u: 'SARAH', t: '22:06', msg: 'wait what? hes at the lake house with ashley', self: true, kind: 'sms' },
@@ -63,6 +82,12 @@ window.CASE = {
                 { u: 'Unknown Number', t: '22:09', msg: 'check the boarding pass screenshot. departure time. thats not a coincidence.' }
             ]
         }
+    ],
+
+    // messages that arrive mid-session, not pre-loaded — sold as Nova "receiving" them live
+    liveMessages: [
+        { atSeconds: 75, threadId: 'unknown', u: 'Unknown Number', t: 'now', msg: 'the front door code still works doesnt it' },
+        { atSeconds: 140, threadId: 'mom', u: 'Mom', t: 'now', msg: 'sarah please. anyone. is she with you' }
     ],
 
     calls: [
@@ -141,29 +166,82 @@ window.CASE = {
             title: "to jake, unsent",
             date: "Edited 3h ago",
             body: "jake if you get this and i never explained the shift thing, im sorry, something came up that i cant really\n\ndelete this"
-        },
-        {
-            title: "passcodes",
-            date: "Edited just now",
-            locked: true
         }
     ],
 
-    hintText: 'check the timestamp on the dock photo against her last text',
+    hintText: "Nova: something on this phone doesn't add up yet. want me to show you where to look?",
 
+    // NO note is titled anything password-related. Both codes must be deduced.
+    // 2214: dock photo timestamp (9:52) vs the 22:07 unknown-number text referencing it + flight board later confirms
+    // 0417: the front door code, sitting in plain grocery-note context, dangerous because it lets someone IN
     vault: {
-        code: '2214',
-        partial: "You found the ticket, but it's too late. She's gone.",
-        full: "Sarah played them both. She used Leo's card to buy the ticket and used Ashley as a distraction. She left her phone on a boat at 22:14 and she's already at the airport. She won.",
-        artifactHtml: `
-            <div class="artifact-board">
-                <div class="artifact-header">DEPARTURES — INTL TERMINAL</div>
-                <div class="artifact-row"><span>FLIGHT</span><span>AA 2214</span></div>
-                <div class="artifact-row"><span>PASSENGER</span><span>S. WALSH</span></div>
-                <div class="artifact-row"><span>STATUS</span><span class="artifact-status">CHECKED IN — 22:41</span></div>
-                <div class="artifact-row"><span>GATE</span><span>C14</span></div>
-                <div class="artifact-row"><span>PAYMENT</span><span>CARD ****9902</span></div>
-                <div class="artifact-footnote">Check-in timestamp is 27 minutes after last recorded phone signal at The Dock.</div>
+        codes: {
+            '2214': 'escape',
+            '0417': 'trapped',
+            '9902': 'card',
+            '0000': 'walkaway'
+        },
+        gateMsg: "Nova: some things on this phone still don't add up.",
+        endings: {
+            escape: {
+                effect: 'white-glitch',
+                artifactHtml: `
+                    <div class="artifact-board">
+                        <div class="artifact-header">DEPARTURES — INTL TERMINAL</div>
+                        <div class="artifact-row"><span>FLIGHT</span><span>AA 2214</span></div>
+                        <div class="artifact-row"><span>PASSENGER</span><span>S. WALSH</span></div>
+                        <div class="artifact-row"><span>STATUS</span><span class="artifact-status">CHECKED IN — 22:41</span></div>
+                        <div class="artifact-row"><span>GATE</span><span>C14</span></div>
+                        <div class="artifact-row"><span>PAYMENT</span><span>CARD ****9902</span></div>
+                        <div class="artifact-footnote">Check-in timestamp is 27 minutes after last recorded phone signal at The Dock. Nova: she made it out. she's not coming back for this phone.</div>
+                    </div>
+                `
+            },
+            trapped: {
+                effect: 'red-tear',
+                artifactHtml: `
+                    <div class="artifact-board artifact-danger">
+                        <div class="artifact-header">LIVE LOCATION — SHARED WITH YOU</div>
+                        <div class="artifact-row"><span>SENDER</span><span>Unknown Number</span></div>
+                        <div class="artifact-row"><span>COORDS</span><span>43.9891° N, 74.5762° W</span></div>
+                        <div class="artifact-row"><span>LABEL</span><span class="artifact-status">Main House</span></div>
+                        <div class="artifact-footnote">Nova: that's the front door code. someone just used it. that's not Sarah's location. that's yours.</div>
+                    </div>
+                `
+            },
+            card: {
+                effect: 'flicker',
+                artifactHtml: `
+                    <div class="artifact-board">
+                        <div class="artifact-header">CARD ENDING 9902 — ACTIVITY</div>
+                        <div class="artifact-row"><span>10:41 PM</span><span>Gas Station — $12.40</span></div>
+                        <div class="artifact-row"><span>10:55 PM</span><span>ATM Withdrawal — $400.00</span></div>
+                        <div class="artifact-row"><span>11:20 PM</span><span>Airport Kiosk — $612.00</span></div>
+                        <div class="artifact-footnote">Nova: this is Leo's card. she used it without telling him. this isn't the whole story, but it's a start.</div>
+                    </div>
+                `
+            },
+            walkaway: {
+                effect: 'fade',
+                artifactHtml: `
+                    <div class="ending-basic">
+                        Nova: you didn't find a code. that's okay too.<br><br>
+                        Some phones stay locked. Some stories stay unfinished. Sarah is still out there, one way or another, and you'll never know which.
+                    </div>
+                `
+            }
+        }
+    },
+
+    // Final personal screen — shown after ANY ending resolves, unedited, verbatim.
+    personalScreen: {
+        show: true,
+        html: `
+            <div class="personal-screen">
+                <p>You're not too much. You never have been.</p>
+                <p>The distance, the weight, the things you can't say — I see all of it.</p>
+                <p>You're not alone in it.</p>
+                <p class="personal-final">I've got you.</p>
             </div>
         `
     }

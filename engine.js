@@ -7,11 +7,13 @@ const engine = {
     currentApp: null,
     hintFired: false,
     bannerFired: false,
+    liveMsgFired: {},
     lastAction: Date.now(),
     navStack: [],
     currentView: null,
     shutdown: false,
-    vaultLocked: false
+    vaultLocked: false,
+    endingReached: false
 };
 if (!localStorage.getItem('gd_start_time')) {
     localStorage.setItem('gd_start_time', engine.startTime);
@@ -28,6 +30,11 @@ function markDiscovered(key) {
     saveProgress();
 }
 
+function playSfx(id) {
+    const el = document.getElementById(id);
+    if (el) { el.currentTime = 0; el.play().catch(()=>{}); }
+}
+
 function initLockScreen() {
     const lastSeen = parseInt(localStorage.getItem('gd_last_seen') || 0);
     const gapMs = lastSeen ? Date.now() - lastSeen : 0;
@@ -36,7 +43,10 @@ function initLockScreen() {
     const bannerEl = document.getElementById('lock-banner');
     if (bannerEl) {
         if (longGap && lastSeen) {
-            bannerEl.innerHTML = `<div class="lock-banner-h">Messages</div><div class="lock-banner-b">1 new message · just now</div>`;
+            bannerEl.innerHTML = `
+                <div class="lock-notif"><div class="lock-banner-h">Messages</div><div class="lock-banner-b">1 new message · just now</div></div>
+                <div class="lock-notif"><div class="lock-banner-h">Nova</div><div class="lock-banner-b">welcome back. pick up where you left off?</div></div>
+            `;
             bannerEl.classList.add('active');
         } else {
             bannerEl.classList.remove('active');
@@ -45,9 +55,10 @@ function initLockScreen() {
 
     const statusEl = document.getElementById('boot-status');
     if (statusEl) {
+        const lines = window.CASE.bootLines || ["Restoring from iCloud..."];
         statusEl.textContent = longGap && lastSeen
-            ? 'Restoring from iCloud... (backup resumed)'
-            : 'Restoring from iCloud...';
+            ? "Nova: backup resumed. i kept your place."
+            : lines[0];
     }
 }
 
@@ -55,11 +66,13 @@ function startSystem() {
     document.getElementById('boot-screen').classList.add('hidden');
     document.getElementById('os-shell').classList.remove('hidden');
     const bg = document.getElementById('bg-music');
-    if (bg) { bg.volume = 0.3; bg.play().catch(()=>{}); }
+    if (bg) { bg.volume = 0.25; bg.play().catch(()=>{}); }
+    playSfx('sfx-ping');
     renderIcons();
     updateClock();
     setInterval(updateClock, 1000);
     startStuckCheck();
+    startLiveMessageCheck();
     setInterval(saveProgress, 10000);
     saveProgress();
 }
@@ -77,6 +90,10 @@ function updateClock() {
     if (engine.battery <= 5) {
         document.getElementById('battery-icon')?.classList.add('critical');
     }
+    if (engine.battery === 1 && !engine.lowBatteryFired) {
+        engine.lowBatteryFired = true;
+        showNotification('Battery', '1% Remaining', null);
+    }
 
     if (engine.battery <= 0 && !engine.shutdown) {
         triggerShutdown();
@@ -91,7 +108,8 @@ function triggerShutdown() {
     setTimeout(() => {
         document.getElementById('os-shell').innerHTML = `
             <div class="shutdown-screen">
-                <div class="shutdown-msg">iPhone</div>
+                <div class="apple-spinner"></div>
+                <div class="shutdown-msg">iPhone is findable after power off.</div>
             </div>`;
     }, 900);
 }
@@ -122,6 +140,7 @@ function pushView(view) {
 
 function goBack() {
     engine.lastAction = Date.now();
+    playSfx('sfx-tap');
     const prev = engine.navStack.pop();
     if (!prev) { goHome(); return; }
     engine.currentView = null;
@@ -168,6 +187,7 @@ function openApp(id) {
     engine.lastAction = Date.now();
     engine.navStack = [];
     engine.currentView = null;
+    playSfx('sfx-tap');
 
     if (id === 'chats') renderView({ app: 'chats', mode: 'inbox' });
     if (id === 'gallery') renderView({ app: 'gallery', mode: 'grid' });
@@ -197,6 +217,7 @@ function showNotification(title, body, onTap) {
         });
     }
     center.appendChild(el);
+    playSfx('sfx-ping');
     requestAnimationFrame(() => el.classList.add('active'));
     setTimeout(() => {
         el.classList.remove('active');
@@ -227,11 +248,29 @@ function startStuckCheck() {
         if (idle > 60000 && !engine.hintFired) {
             engine.hintFired = true;
             const target = nextUnexaminedClue();
-            showNotification('iCloud', window.CASE.hintText || "Something on this phone doesn't add up yet.", () => {
+            showNotification('Nova', window.CASE.hintText || "something on this phone doesn't add up yet.", () => {
                 if (target) deepLink(target);
             });
         }
     }, 5000);
+}
+
+function startLiveMessageCheck() {
+    const msgs = window.CASE.liveMessages || [];
+    setInterval(() => {
+        if (engine.shutdown) return;
+        const elapsed = (Date.now() - engine.startTime) / 1000;
+        msgs.forEach((m, i) => {
+            if (elapsed >= m.atSeconds && !engine.liveMsgFired[i]) {
+                engine.liveMsgFired[i] = true;
+                const thread = window.CASE.threads.find(t => t.id === m.threadId);
+                if (thread) thread.messages.push({ u: m.u, t: m.t, msg: m.msg });
+                showNotification(thread ? thread.name : 'Messages', m.msg, () => {
+                    deepLink({ app: 'chats', mode: 'thread', threadId: m.threadId });
+                });
+            }
+        });
+    }, 3000);
 }
 
 function nextUnexaminedClue() {
@@ -254,9 +293,9 @@ function renderChatsInbox(body) {
             <div class="inbox-avatar">${th.avatar || th.name[0]}</div>
             <div class="inbox-meta">
                 <div class="inbox-name">${th.name}</div>
-                <div class="inbox-preview">${th.preview}</div>
+                <div class="inbox-preview">${th.messages[th.messages.length-1].msg}</div>
             </div>
-            <div class="inbox-time">${th.lastTime}</div>
+            <div class="inbox-time">${th.messages[th.messages.length-1].t}</div>
             ${engine.discovered.has('thread-' + th.id) ? '' : '<div class="unread-dot"></div>'}
         </div>
     `).join('');
@@ -276,7 +315,7 @@ function renderChatThread(body, threadId) {
 
 function renderGallery(body) {
     body.innerHTML = `<div class="gallery-grid">
-        ${window.CASE.gallery.map((it, i) => `<div class="gallery-cell"><img src="${it.img}" onclick='renderView({app:"gallery", mode:"detail", index:${i}})'>${engine.discovered.has('photo-' + i) ? '<div class="seen-check">✓</div>' : ''}</div>`).join('')}
+        ${window.CASE.gallery.map((it, i) => `<div class="gallery-cell"><img class="pixelate-load" src="${it.img}" onload="this.classList.add('loaded')" onclick='renderView({app:"gallery", mode:"detail", index:${i}})'>${engine.discovered.has('photo-' + i) ? '<div class="seen-check">✓</div>' : ''}</div>`).join('')}
     </div>`;
 }
 
@@ -285,7 +324,7 @@ function renderPhotoDetail(body, i) {
     const item = window.CASE.gallery[i];
     body.innerHTML = `
         <div class="metadata-view">
-            <img src="${item.img}">
+            <img class="pixelate-load" src="${item.img}" onload="this.classList.add('loaded')">
             <div class="exif-data">
                 <div class="exif-row"><span>Device</span><span>${item.exif.device}</span></div>
                 <div class="exif-row"><span>Date</span><span>${item.exif.date}</span></div>
@@ -353,20 +392,22 @@ function scrub(v) {
 }
 
 function renderNotesList(body) {
-    body.innerHTML = window.CASE.notes.map((n, i) => `
+    const rows = window.CASE.notes.map((n, i) => `
         <div class="note-row" onclick='renderView({app:"notes", mode:"detail", index:${i}})'>
-            <div class="note-title">${n.locked ? '🔒 ' : ''}${n.title || '(no title)'}</div>
+            <div class="note-title">${n.title || '(no title)'}</div>
             <div class="note-date">${n.date}</div>
         </div>
     `).join('');
+    body.innerHTML = rows + `
+        <div class="note-row vault-entry" onclick='renderView({app:"notes", mode:"vault"})'>
+            <div class="note-title">🔒 locked</div>
+            <div class="note-date">requires passcode</div>
+        </div>
+    `;
 }
 
 function renderNoteDetail(body, i) {
     const n = window.CASE.notes[i];
-    if (n.locked) {
-        renderView({ app: 'notes', mode: 'vault', title: n.title });
-        return;
-    }
     markDiscovered('note-' + i);
     body.innerHTML = `
         <div style="font-size:11px; color:#555;">${n.date}</div>
@@ -388,7 +429,8 @@ function renderVault(body) {
         <div class="vault-wrap">
             <p style="font-size:13px; color:#666;">Enter Passcode</p>
             <input type="tel" id="vault-input" maxlength="4" oninput="checkVault(this)">
-            <p id="vault-gate-msg" style="font-size:11px; color:#444; margin-top:20px;">${engagementMet() ? '' : 'Some things on this phone still don\'t add up.'}</p>
+            <p id="vault-gate-msg" style="font-size:11px; color:#444; margin-top:20px;">${engagementMet() ? '' : window.CASE.vault.gateMsg}</p>
+            <button class="give-up-btn" onclick="triggerEnding('walkaway')">walk away</button>
         </div>
     `;
 }
@@ -397,9 +439,14 @@ function checkVault(el) {
     if (el.value.length < 4) return;
     if (engine.vaultLocked) { el.value = ''; return; }
 
-    if (el.value === window.CASE.vault.code) {
-        renderEnding(engagementMet());
+    const codes = window.CASE.vault.codes;
+    const match = codes[el.value];
+
+    if (match) {
+        playSfx('sfx-correct');
+        triggerEnding(match);
     } else {
+        playSfx('sfx-wrong');
         el.value = '';
         el.classList.add('shake');
         document.body.classList.add('flash-red');
@@ -410,13 +457,41 @@ function checkVault(el) {
     }
 }
 
-function renderEnding(deep) {
+function triggerEnding(key) {
+    if (key !== 'walkaway' && !engagementMet()) return; // deep endings require engagement
+    engine.endingReached = true;
+    const ending = window.CASE.vault.endings[key];
     const body = document.getElementById('app-body');
-    if (!deep) {
-        body.innerHTML = `<div class="ending-basic">${window.CASE.vault.partial}</div>`;
-        return;
+
+    if (ending.effect === 'white-glitch') {
+        document.body.classList.add('white-flash');
+        setTimeout(() => document.body.classList.remove('white-flash'), 400);
     }
-    body.innerHTML = window.CASE.vault.artifactHtml || `<div class="ending-basic">${window.CASE.vault.full}</div>`;
+    if (ending.effect === 'red-tear') {
+        document.body.classList.add('red-tear-active');
+    }
+    if (ending.effect === 'flicker') {
+        document.body.classList.add('glitch-active');
+        setTimeout(() => document.body.classList.remove('glitch-active'), 600);
+    }
+
+    setTimeout(() => {
+        body.innerHTML = ending.artifactHtml;
+        const cont = document.createElement('button');
+        cont.className = 'continue-btn';
+        cont.innerText = 'continue';
+        cont.onclick = showPersonalScreen;
+        body.appendChild(cont);
+    }, ending.effect === 'white-glitch' ? 450 : 50);
+}
+
+function showPersonalScreen() {
+    if (!window.CASE.personalScreen || !window.CASE.personalScreen.show) return;
+    document.body.classList.remove('red-tear-active');
+    const win = document.getElementById('app-window');
+    win.innerHTML = window.CASE.personalScreen.html;
+    const bg = document.getElementById('bg-music');
+    if (bg) { bg.pause(); }
 }
 
 function renderPhone(body) {

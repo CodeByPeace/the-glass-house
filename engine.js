@@ -62,21 +62,11 @@ function initLockScreen() {
     }
 }
 
-function unlockAllAudio() {
-    ['bg-music','sfx-ping','sfx-tension','sfx-tap','sfx-correct','sfx-wrong'].forEach(id => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.play().then(() => { el.pause(); el.currentTime = 0; }).catch(()=>{});
-    });
-}
-
 function startSystem() {
-    unlockAllAudio();
     document.getElementById('boot-screen').classList.add('hidden');
     document.getElementById('os-shell').classList.remove('hidden');
     const bg = document.getElementById('bg-music');
-    if (bg) { bg.volume = 0.25; bg.play().catch(()=>{}); }
-    playSfx('sfx-ping');
+    if (bg) { bg.volume = 0.3; bg.play().catch(()=>{}); }
     renderIcons();
     updateClock();
     setInterval(updateClock, 1000);
@@ -84,43 +74,6 @@ function startSystem() {
     startLiveMessageCheck();
     setInterval(saveProgress, 10000);
     saveProgress();
-}
-
-function updateClock() {
-    if (engine.shutdown) return;
-    const now = new Date();
-    document.getElementById('clock').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-
-    const elapsed = (Date.now() - engine.startTime) / 1000;
-    engine.battery = Math.max(0, 18 - Math.floor(elapsed / 25));
-    const levelEl = document.getElementById('battery-level');
-    if (levelEl) levelEl.style.width = engine.battery + '%';
-
-    if (engine.battery <= 5) {
-        document.getElementById('battery-icon')?.classList.add('critical');
-    }
-    if (engine.battery === 1 && !engine.lowBatteryFired) {
-        engine.lowBatteryFired = true;
-        showNotification('Battery', '1% Remaining', null);
-    }
-
-    if (engine.battery <= 0 && !engine.shutdown) {
-        triggerShutdown();
-    }
-}
-
-function triggerShutdown() {
-    engine.shutdown = true;
-    const bg = document.getElementById('bg-music');
-    if (bg) { bg.pause(); }
-    document.body.classList.add('shutdown-active');
-    setTimeout(() => {
-        document.getElementById('os-shell').innerHTML = `
-            <div class="shutdown-screen">
-                <div class="apple-spinner"></div>
-                <div class="shutdown-msg">iPhone is findable after power off.</div>
-            </div>`;
-    }, 900);
 }
 
 function renderIcons() {
@@ -149,7 +102,6 @@ function pushView(view) {
 
 function goBack() {
     engine.lastAction = Date.now();
-    playSfx('sfx-tap');
     const prev = engine.navStack.pop();
     if (!prev) { goHome(); return; }
     engine.currentView = null;
@@ -196,7 +148,6 @@ function openApp(id) {
     engine.lastAction = Date.now();
     engine.navStack = [];
     engine.currentView = null;
-    playSfx('sfx-tap');
 
     if (id === 'chats') renderView({ app: 'chats', mode: 'inbox' });
     if (id === 'gallery') renderView({ app: 'gallery', mode: 'grid' });
@@ -226,7 +177,6 @@ function showNotification(title, body, onTap) {
         });
     }
     center.appendChild(el);
-    playSfx('sfx-ping');
     requestAnimationFrame(() => el.classList.add('active'));
     setTimeout(() => {
         el.classList.remove('active');
@@ -464,10 +414,8 @@ function checkVault(el) {
     const match = codes[el.value];
 
     if (match) {
-        playSfx('sfx-correct');
         triggerEnding(match);
     } else {
-        playSfx('sfx-wrong');
         el.value = '';
         el.classList.add('shake');
         document.body.classList.add('flash-red');

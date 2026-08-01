@@ -62,7 +62,16 @@ function initLockScreen() {
     }
 }
 
+function unlockAllAudio() {
+    ['bg-music','sfx-ping','sfx-tension','sfx-tap','sfx-correct','sfx-wrong'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.play().then(() => { el.pause(); el.currentTime = 0; }).catch(()=>{});
+    });
+}
+
 function startSystem() {
+    unlockAllAudio();
     document.getElementById('boot-screen').classList.add('hidden');
     document.getElementById('os-shell').classList.remove('hidden');
     const bg = document.getElementById('bg-music');
